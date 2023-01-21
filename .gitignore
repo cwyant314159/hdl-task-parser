@@ -1,0 +1,8 @@
+bin
+obj
+verilate_obj
+
+*.a
+*.d
+*.o
+*.vcd
