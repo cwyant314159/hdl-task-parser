@@ -25,25 +25,25 @@ Dut::~Dut()
   mTrace.close();
 }
 
-vluint64_t Dut::get_fail_count()
+vluint64_t Dut::GetFailCount()
 {
   return mFailCount;
 }
 
 
-void Dut::task(vluint32_t out, vluint32_t len, uint32_t cmd_ready_latency)
+void Dut::Act(const OutTask& task)
 {
     ++mTestCount;
     
     // compute expected outputs
-    const vluint32_t e_resp = expected_resp(out, len, cmd_ready_latency);
-    const vluint32_t e_cmd  = expected_cmd(out);
+    const vluint32_t e_resp = task.GetResp();
+    const vluint32_t e_cmd  = task.GetCmd();
 
     // strobe command into the DUT
-    mDut.len_bytes  = len;
-    mDut.out_strobe = out;
+    mDut.len_bytes  = task.len;
+    mDut.out_strobe = task.out;
     mDut.task_valid = 1;
-    wait_cycles(1);
+    WaitCycles(1);
     mDut.task_valid = 0;
 
     // prep the output stream for potential command and wait
@@ -55,7 +55,7 @@ void Dut::task(vluint32_t out, vluint32_t len, uint32_t cmd_ready_latency)
     for(uint32_t latency = 0; 0 == mDut.resp_valid; ++latency) {
         
         // delay asserting ready
-        if(latency > cmd_ready_latency) {
+        if(latency > task.latency) {
             mDut.aso_cmd_ready = 1;
         }
 
@@ -64,12 +64,12 @@ void Dut::task(vluint32_t out, vluint32_t len, uint32_t cmd_ready_latency)
             a_cmd = mDut.aso_cmd_data;
         }
 
-        wait_cycles(1);
+        WaitCycles(1);
     }
 
     // de-assert stream strobe
     mDut.aso_cmd_ready = 0;
-    wait_cycles(1);
+    WaitCycles(1);
 
     // collect the actual response
     const vluint32_t a_resp = mDut.resp;
@@ -79,7 +79,7 @@ void Dut::task(vluint32_t out, vluint32_t len, uint32_t cmd_ready_latency)
         mFailCount++;
         std::cout << "-------------------------------------------------\n";
         std::cout << "Response failed\n";
-        std::cout << "out = " << out << " len = " << len << " latency = " << cmd_ready_latency << '\n';
+        std::cout << "out = " << task.out << " len = " << task.len << " latency = " << task.latency << '\n';
         std::cout << "Expected: " << e_resp << '\n';
         std::cout << "Actual  : " << a_resp << '\n';
         std::cout << "-------------------------------------------------\n";
@@ -89,81 +89,62 @@ void Dut::task(vluint32_t out, vluint32_t len, uint32_t cmd_ready_latency)
         mFailCount++;
         std::cout << "-------------------------------------------------\n";
         std::cout << "Command failed\n";
-        std::cout << "out = " << out << " len = " << len << " latency = " << cmd_ready_latency << '\n';
+        std::cout << "out = " << task.out << " len = " << task.len << " latency = " << task.latency << '\n';
         std::cout << "Expected: " << e_cmd << '\n';
         std::cout << "Actual  : " << a_cmd << '\n';
         std::cout << "-------------------------------------------------\n";
     }
 }
 
-void Dut::exeErrorTest()
+void Dut::ExeErrorTest()
 {
     std::cout << "Execution Error Test\n";
-    reset();
-    task(0, VALID_LEN, TIMEOUT); // valid task that timeout
+    Reset();
+    const OutTask task = OutTask(OutTask::OUT_MIN, OutTask::VALID_LEN, OutTask::TIMEOUT);
+    Act(task);
 }
 
-void Dut::invalidLenTest()
+void Dut::InvalidLenTest()
 {
     std::cout << "Invalid Length Test\n";
-    reset(); 
-    task(0, VALID_LEN+1); // length too large
+    Reset(); 
+    const OutTask task = OutTask(OutTask::OUT_MIN, OutTask::VALID_LEN + 1);
+    Act(task);
 }
 
-void Dut::outputTest()
+void Dut::OutputTest()
 {
     constexpr vluint32_t start = 0;
     constexpr vluint32_t end   = 100000;
     std::cout << "Output Test [" << start << " - " << end << "]\n";
-    reset();
+    Reset();
 
     for (vluint32_t out = start; out <= end; ++out) {
-        task(out, VALID_LEN); 
+        const OutTask task = OutTask(out);
+        Act(task); 
     }
 }
 
-void Dut::reset(vluint64_t cycles)
+void Dut::Reset(vluint64_t cycles)
 {
   mDut.rst           = 1;
   mDut.task_valid    = 0;
   mDut.len_bytes     = 0;
   mDut.out_strobe    = 0;
   mDut.aso_cmd_ready = 0;
-  wait_cycles(2);
+  WaitCycles(2);
   
   mDut.rst = 0;
-  wait_cycles(1);
+  WaitCycles(1);
 }
 
-void Dut::wait_cycles(vluint64_t cycles)
+void Dut::WaitCycles(vluint64_t cycles)
 {
   const vluint64_t target_count = cycles + mPosEdgeCnt;
 
   while(target_count != mPosEdgeCnt) {
     tick();
   }
-}
-
-constexpr vluint32_t Dut::expected_resp(vluint32_t out, vluint32_t len, uint32_t latency)
-{
-    if (len != VALID_LEN) {
-        return tb_out_cmd_task_icd_pkg::HEADER_INVALID;
-    } else if (out > OUT_MAX) {
-        return tb_out_cmd_task_icd_pkg::PAYLOAD_INVALID;
-    } else if (latency > TIMEOUT) {
-        return tb_out_cmd_task_icd_pkg::EXE_ERROR;
-    }
-    
-    return tb_out_cmd_task_icd_pkg::TASK_VALID;
-}
-
-constexpr vluint32_t Dut::expected_cmd(vluint32_t out)
-{
-    const uint32_t id = tb_out_cmd_cmd_icd_pkg::CMD_ID_OUT <<
-        tb_out_cmd_cmd_icd_pkg::CMD_ID_LSB;
-
-    const uint32_t o = out << tb_out_cmd_cmd_icd_pkg::OUT_CMD_LSB; 
-    return id | o;
 }
 
 void Dut::tick()

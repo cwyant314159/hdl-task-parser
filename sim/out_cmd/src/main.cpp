@@ -7,10 +7,9 @@ int main(int argc, char** argv)
 
     Sim::Dut simDut;
 
-    simDut.reset();
-    simDut.outputTest();
-    simDut.invalidLenTest();
-    simDut.exeErrorTest();
+    simDut.OutputTest();
+    simDut.InvalidLenTest();
+    simDut.ExeErrorTest();
 
-    return simDut.get_fail_count() > 0;
+    return simDut.GetFailCount() > 0;
 }
