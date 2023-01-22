@@ -6,16 +6,17 @@
 #include "tb_out_cmd.h"
 #include "tb_out_cmd_task_icd_pkg.h"
 
-class SimDut {
+namespace Sim {
+
+class Dut {
 
 public:
-    SimDut();
-    ~SimDut();
+    Dut();
+    ~Dut();
     vluint64_t get_fail_count();
     void task(vluint32_t out, vluint32_t len, uint32_t cmd_ready_latency = 0);
     void exeErrorTest();
     void invalidLenTest();
-    void taskTest(vluint32_t out);
     void outputTest();
     void reset(vluint64_t cycles = 2);
     void wait_cycles(vluint64_t cycles);
@@ -38,3 +39,5 @@ private:
     constexpr vluint32_t expected_cmd(vluint32_t out);
     void tick();
 };
+
+} // namespace Sim

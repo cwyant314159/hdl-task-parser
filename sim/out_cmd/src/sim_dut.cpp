@@ -1,11 +1,13 @@
-#include "sim_dut.hpp"
+#include "dut.hpp"
 
 #include <iostream>
 
 #include "tb_out_cmd_task_icd_pkg.h"
 #include "tb_out_cmd_cmd_icd_pkg.h"
 
-SimDut::SimDut()
+namespace Sim {
+
+Dut::Dut()
 {
   Verilated::traceEverOn(true);
   mDut.trace(&mTrace, 5);
@@ -14,7 +16,7 @@ SimDut::SimDut()
   std::cout << "=== SIMULATION BEGIN ===\n";
 }
 
-SimDut::~SimDut()
+Dut::~Dut()
 {
   std::cout << "=== SIMULATION END ===\n";
   std::cout << "Tests: " << mTestCount << '\n';
@@ -23,13 +25,13 @@ SimDut::~SimDut()
   mTrace.close();
 }
 
-vluint64_t SimDut::get_fail_count()
+vluint64_t Dut::get_fail_count()
 {
   return mFailCount;
 }
 
 
-void SimDut::task(vluint32_t out, vluint32_t len, uint32_t cmd_ready_latency)
+void Dut::task(vluint32_t out, vluint32_t len, uint32_t cmd_ready_latency)
 {
     ++mTestCount;
     
@@ -94,21 +96,21 @@ void SimDut::task(vluint32_t out, vluint32_t len, uint32_t cmd_ready_latency)
     }
 }
 
-void SimDut::exeErrorTest()
+void Dut::exeErrorTest()
 {
     std::cout << "Execution Error Test\n";
     reset();
     task(0, VALID_LEN, TIMEOUT); // valid task that timeout
 }
 
-void SimDut::invalidLenTest()
+void Dut::invalidLenTest()
 {
     std::cout << "Invalid Length Test\n";
     reset(); 
     task(0, VALID_LEN+1); // length too large
 }
 
-void SimDut::outputTest()
+void Dut::outputTest()
 {
     constexpr vluint32_t start = 0;
     constexpr vluint32_t end   = 100000;
@@ -120,7 +122,7 @@ void SimDut::outputTest()
     }
 }
 
-void SimDut::reset(vluint64_t cycles)
+void Dut::reset(vluint64_t cycles)
 {
   mDut.rst           = 1;
   mDut.task_valid    = 0;
@@ -133,7 +135,7 @@ void SimDut::reset(vluint64_t cycles)
   wait_cycles(1);
 }
 
-void SimDut::wait_cycles(vluint64_t cycles)
+void Dut::wait_cycles(vluint64_t cycles)
 {
   const vluint64_t target_count = cycles + mPosEdgeCnt;
 
@@ -142,7 +144,7 @@ void SimDut::wait_cycles(vluint64_t cycles)
   }
 }
 
-constexpr vluint32_t SimDut::expected_resp(vluint32_t out, vluint32_t len, uint32_t latency)
+constexpr vluint32_t Dut::expected_resp(vluint32_t out, vluint32_t len, uint32_t latency)
 {
     if (len != VALID_LEN) {
         return tb_out_cmd_task_icd_pkg::HEADER_INVALID;
@@ -155,7 +157,7 @@ constexpr vluint32_t SimDut::expected_resp(vluint32_t out, vluint32_t len, uint3
     return tb_out_cmd_task_icd_pkg::TASK_VALID;
 }
 
-constexpr vluint32_t SimDut::expected_cmd(vluint32_t out)
+constexpr vluint32_t Dut::expected_cmd(vluint32_t out)
 {
     const uint32_t id = tb_out_cmd_cmd_icd_pkg::CMD_ID_OUT <<
         tb_out_cmd_cmd_icd_pkg::CMD_ID_LSB;
@@ -164,7 +166,7 @@ constexpr vluint32_t SimDut::expected_cmd(vluint32_t out)
     return id | o;
 }
 
-void SimDut::tick()
+void Dut::tick()
 { 
   mDut.clk ^= 1;
   mDut.eval();
@@ -176,3 +178,5 @@ void SimDut::tick()
   mTrace.dump(mSimTime);
   mSimTime++;
 }
+
+} // namespace Sim
