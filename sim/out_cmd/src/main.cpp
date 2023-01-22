@@ -1,11 +1,11 @@
-#include "dut.hpp"
+#include "out_cmd_dut.hpp"
 
 // MAIN
 int main(int argc, char** argv)
 {
     Verilated::commandArgs(argc, argv);
 
-    Sim::Dut simDut;
+    Sim::OutCmdDut simDut("out_cmd");
 
     simDut.OutputTest();
     simDut.InvalidLenTest();

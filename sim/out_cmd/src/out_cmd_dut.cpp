@@ -1,4 +1,4 @@
-#include "dut.hpp"
+#include "out_cmd_dut.hpp"
 
 #include <iostream>
 
@@ -7,76 +7,65 @@
 
 namespace Sim {
 
-Dut::Dut()
+OutCmdDut::OutCmdDut(std::string wave_file):
+    Dut<tb_out_cmd>(wave_file)
 {
-  Verilated::traceEverOn(true);
-  mDut.trace(&mTrace, 5);
-  mTrace.open("waveform.vcd");
-
-  std::cout << "=== SIMULATION BEGIN ===\n";
+    std::cout << "=== OUTPUT COMMAND SIMULATION BEGIN ===\n";
 }
 
-Dut::~Dut()
+OutCmdDut::~OutCmdDut()
 {
-  std::cout << "=== SIMULATION END ===\n";
-  std::cout << "Tests: " << mTestCount << '\n';
-  std::cout << "Fails: " << mFailCount << '\n';
-  mDut.final();
-  mTrace.close();
+    std::cout << "=== OUTPUT COMMAND SIMULATION END ===\n";
+    std::cout << "Tests: " << this->mTestCount << '\n';
+    std::cout << "Fails: " << this->mFailCount << '\n';
 }
 
-vluint64_t Dut::GetFailCount()
+void OutCmdDut::act(const OutTask& task)
 {
-  return mFailCount;
-}
-
-
-void Dut::Act(const OutTask& task)
-{
-    ++mTestCount;
+    ++this->mTestCount;
     
     // compute expected outputs
     const vluint32_t e_resp = task.GetResp();
     const vluint32_t e_cmd  = task.GetCmd();
 
     // strobe command into the DUT
-    mDut.len_bytes  = task.len;
-    mDut.out_strobe = task.out;
-    mDut.task_valid = 1;
-    WaitCycles(1);
-    mDut.task_valid = 0;
+    this->mDut.len_bytes  = task.len;
+    this->mDut.out_strobe = task.out;
+    this->mDut.task_valid = 1;
+    this->WaitCycles(1);
+    this->mDut.task_valid = 0;
 
     // prep the output stream for potential command and wait
     // for response
+    this->mDut.aso_cmd_ready = 0;
     vluint32_t a_cmd = 0xFFFFFFFF;
-    mDut.aso_cmd_ready = 0;
 
     // some for loop abuse to handle the latency counter
-    for(uint32_t latency = 0; 0 == mDut.resp_valid; ++latency) {
+    for(uint32_t latency = 0; 0 == this->mDut.resp_valid; ++latency) {
         
         // delay asserting ready
         if(latency > task.latency) {
-            mDut.aso_cmd_ready = 1;
+            this->mDut.aso_cmd_ready = 1;
         }
 
         // capture the command data
-        if (mDut.aso_cmd_ready && mDut.aso_cmd_valid) {
-            a_cmd = mDut.aso_cmd_data;
+        if (this->mDut.aso_cmd_ready && this->mDut.aso_cmd_valid) {
+            a_cmd = this->mDut.aso_cmd_data;
         }
 
-        WaitCycles(1);
+        this->WaitCycles(1);
     }
 
     // de-assert stream strobe
-    mDut.aso_cmd_ready = 0;
-    WaitCycles(1);
+    this->mDut.aso_cmd_ready = 0;
+    this->WaitCycles(1);
 
     // collect the actual response
-    const vluint32_t a_resp = mDut.resp;
+    const vluint32_t a_resp = this->mDut.resp;
     
     // validate results
     if (e_resp != a_resp) {
-        mFailCount++;
+        ++this->mFailCount;
         std::cout << "-------------------------------------------------\n";
         std::cout << "Response failed\n";
         std::cout << "out = " << task.out << " len = " << task.len << " latency = " << task.latency << '\n';
@@ -86,7 +75,7 @@ void Dut::Act(const OutTask& task)
     }
 
     if (e_resp == tb_out_cmd_task_icd_pkg::TASK_VALID && e_cmd != a_cmd) {
-        mFailCount++;
+        ++this->mFailCount;
         std::cout << "-------------------------------------------------\n";
         std::cout << "Command failed\n";
         std::cout << "out = " << task.out << " len = " << task.len << " latency = " << task.latency << '\n';
@@ -96,68 +85,52 @@ void Dut::Act(const OutTask& task)
     }
 }
 
-void Dut::ExeErrorTest()
+void OutCmdDut::ExeErrorTest()
 {
     std::cout << "Execution Error Test\n";
-    Reset();
+    this->reset();
     const OutTask task = OutTask(OutTask::OUT_MIN, OutTask::VALID_LEN, OutTask::TIMEOUT);
-    Act(task);
+    this->act(task);
 }
 
-void Dut::InvalidLenTest()
+void OutCmdDut::InvalidLenTest()
 {
     std::cout << "Invalid Length Test\n";
-    Reset(); 
+    this->reset(); 
     const OutTask task = OutTask(OutTask::OUT_MIN, OutTask::VALID_LEN + 1);
-    Act(task);
+    this->act(task);
 }
 
-void Dut::OutputTest()
+void OutCmdDut::OutputTest()
 {
     constexpr vluint32_t start = 0;
-    constexpr vluint32_t end   = 100000;
+    constexpr vluint32_t end   = 100;
     std::cout << "Output Test [" << start << " - " << end << "]\n";
-    Reset();
+    this->reset();
 
     for (vluint32_t out = start; out <= end; ++out) {
         const OutTask task = OutTask(out);
-        Act(task); 
+        this->act(task); 
     }
 }
 
-void Dut::Reset(vluint64_t cycles)
+void OutCmdDut::reset(vluint64_t cycles)
 {
-  mDut.rst           = 1;
-  mDut.task_valid    = 0;
-  mDut.len_bytes     = 0;
-  mDut.out_strobe    = 0;
-  mDut.aso_cmd_ready = 0;
-  WaitCycles(2);
+  this->mDut.rst           = 1;
+  this->mDut.task_valid    = 0;
+  this->mDut.len_bytes     = 0;
+  this->mDut.out_strobe    = 0;
+  this->mDut.aso_cmd_ready = 0;
+  this->WaitCycles(2);
   
-  mDut.rst = 0;
-  WaitCycles(1);
+  this->mDut.rst = 0;
+  this->WaitCycles(1);
 }
 
-void Dut::WaitCycles(vluint64_t cycles)
+std::uint8_t OutCmdDut::toggle_clk()
 {
-  const vluint64_t target_count = cycles + mPosEdgeCnt;
-
-  while(target_count != mPosEdgeCnt) {
-    tick();
-  }
-}
-
-void Dut::tick()
-{ 
-  mDut.clk ^= 1;
-  mDut.eval();
-
-  if (1 == mDut.clk) {
-    ++mPosEdgeCnt;
-  }
-
-  mTrace.dump(mSimTime);
-  mSimTime++;
+    this->mDut.clk ^= 1;
+    return this->mDut.clk;
 }
 
 } // namespace Sim
