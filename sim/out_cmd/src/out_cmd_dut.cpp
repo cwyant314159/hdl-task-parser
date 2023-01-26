@@ -20,17 +20,44 @@ OutCmdDut::~OutCmdDut()
     std::cout << "Fails: " << this->mFailCount << '\n';
 }
 
-void OutCmdDut::act(const OutTask& task)
+
+void OutCmdDut::ExeErrorTest()
+{
+    std::cout << "Execution Error Test\n";
+    this->reset();
+    this->act(this->OUT_MIN, this->VALID_LEN, this->TIMEOUT);
+}
+
+void OutCmdDut::InvalidLenTest()
+{
+    std::cout << "Invalid Length Test\n";
+    this->reset(); 
+    this->act(this->OUT_MIN, this->VALID_LEN+1);
+}
+
+void OutCmdDut::OutputTest()
+{
+    constexpr vluint32_t start = 0;
+    constexpr vluint32_t end   = 100;
+    std::cout << "Output Test [" << start << " - " << end << "]\n";
+    this->reset();
+
+    for (vluint32_t out = start; out <= end; ++out) {
+        this->act(out); 
+    }
+}
+
+void OutCmdDut::act(vluint32_t out, vluint32_t len, vluint32_t latency)
 {
     ++this->mTestCount;
     
     // compute expected outputs
-    const vluint32_t e_resp = task.GetResp();
-    const vluint32_t e_cmd  = task.GetCmd();
+    const vluint32_t e_resp = this->get_resp(out, len, latency);
+    const vluint32_t e_cmd  = this->get_cmd(out, len, latency);
 
     // strobe command into the DUT
-    this->mDut.len_bytes  = task.len;
-    this->mDut.out_strobe = task.out;
+    this->mDut.len_bytes  = len;
+    this->mDut.out_strobe = out;
     this->mDut.task_valid = 1;
     this->WaitCycles(1);
     this->mDut.task_valid = 0;
@@ -41,10 +68,10 @@ void OutCmdDut::act(const OutTask& task)
     vluint32_t a_cmd = 0xFFFFFFFF;
 
     // some for loop abuse to handle the latency counter
-    for(uint32_t latency = 0; 0 == this->mDut.resp_valid; ++latency) {
+    for(uint32_t l = 0; 0 == this->mDut.resp_valid; ++l) {
         
         // delay asserting ready
-        if(latency > task.latency) {
+        if(l > latency) {
             this->mDut.aso_cmd_ready = 1;
         }
 
@@ -68,7 +95,7 @@ void OutCmdDut::act(const OutTask& task)
         ++this->mFailCount;
         std::cout << "-------------------------------------------------\n";
         std::cout << "Response failed\n";
-        std::cout << "out = " << task.out << " len = " << task.len << " latency = " << task.latency << '\n';
+        std::cout << "out = " << out << " len = " << len << " latency = " << latency << '\n';
         std::cout << "Expected: " << e_resp << '\n';
         std::cout << "Actual  : " << a_resp << '\n';
         std::cout << "-------------------------------------------------\n";
@@ -78,40 +105,40 @@ void OutCmdDut::act(const OutTask& task)
         ++this->mFailCount;
         std::cout << "-------------------------------------------------\n";
         std::cout << "Command failed\n";
-        std::cout << "out = " << task.out << " len = " << task.len << " latency = " << task.latency << '\n';
+        std::cout << "out = " << out << " len = " << len << " latency = " << latency << '\n';
         std::cout << "Expected: " << e_cmd << '\n';
         std::cout << "Actual  : " << a_cmd << '\n';
         std::cout << "-------------------------------------------------\n";
     }
 }
 
-void OutCmdDut::ExeErrorTest()
+constexpr vluint32_t OutCmdDut::get_resp(vluint32_t out, vluint32_t len, std::uint32_t latency) const noexcept
 {
-    std::cout << "Execution Error Test\n";
-    this->reset();
-    const OutTask task = OutTask(OutTask::OUT_MIN, OutTask::VALID_LEN, OutTask::TIMEOUT);
-    this->act(task);
-}
-
-void OutCmdDut::InvalidLenTest()
-{
-    std::cout << "Invalid Length Test\n";
-    this->reset(); 
-    const OutTask task = OutTask(OutTask::OUT_MIN, OutTask::VALID_LEN + 1);
-    this->act(task);
-}
-
-void OutCmdDut::OutputTest()
-{
-    constexpr vluint32_t start = 0;
-    constexpr vluint32_t end   = 100;
-    std::cout << "Output Test [" << start << " - " << end << "]\n";
-    this->reset();
-
-    for (vluint32_t out = start; out <= end; ++out) {
-        const OutTask task = OutTask(out);
-        this->act(task); 
+    if (len != VALID_LEN) { 
+        return tb_out_cmd_task_icd_pkg::HEADER_INVALID;
+    } else if (out > OUT_MAX) {
+        return tb_out_cmd_task_icd_pkg::PAYLOAD_INVALID;
+    } else if (latency > TIMEOUT) { 
+        return tb_out_cmd_task_icd_pkg::EXE_ERROR;
     }
+
+    return tb_out_cmd_task_icd_pkg::TASK_VALID;
+}
+
+constexpr vluint32_t OutCmdDut::get_cmd(vluint32_t out, vluint32_t len, std::uint32_t latency) const noexcept
+{
+    const vluint32_t resp = this->get_resp(out, len, latency);
+
+    if (tb_out_cmd_task_icd_pkg::TASK_VALID != resp) {
+        return 0xFFFFFFFF;
+    }
+
+    constexpr uint32_t id = tb_out_cmd_cmd_icd_pkg::CMD_ID_OUT <<
+        tb_out_cmd_cmd_icd_pkg::CMD_ID_LSB;
+
+    const uint32_t o = out << tb_out_cmd_cmd_icd_pkg::OUT_CMD_LSB; 
+    
+    return id | o;
 }
 
 void OutCmdDut::reset(vluint64_t cycles)
