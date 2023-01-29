@@ -1,9 +1,6 @@
 package cmd_icd_pkg;
 
 /* verilator lint_off UNUSEDPARAM */
-
-parameter int PAYLOAD_0_IDX /*verilator public*/ = 'd4;  // application payload
-
 // MSB and LSB of fields in the command word
 parameter int CMD_ID_LSB /*verilator public*/ = 'd28;
 parameter int CMD_ID_MSG /*verilator public*/ = 'd31;

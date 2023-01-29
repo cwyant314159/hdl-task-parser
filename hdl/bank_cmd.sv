@@ -39,10 +39,8 @@ localparam logic[31:0] TASK_2_BYTES = HEADER_BYTES + ('d4 * CMD_WORDS * 'd2);
 localparam logic[31:0] TASK_3_BYTES = HEADER_BYTES + ('d4 * CMD_WORDS * 'd3);
 localparam logic[31:0] TASK_4_BYTES = HEADER_BYTES + ('d4 * CMD_WORDS * 'd4);
 
-localparam logic[31:0] BANK_ENABLE_MIN = 'd0;
 localparam logic[31:0] BANK_ENABLE_MAX = 'd15;
 
-localparam logic[31:0] BANK_VAL_MIN = 'd0;
 localparam logic[31:0] BANK_VAL_MAX = 'd255;
 
 // DATA TYPES
@@ -65,8 +63,8 @@ logic[31:0] next_resp;
 
 logic[31:0] len,         next_len;
 logic[31:0] bank[4],     next_bank[4];
-logic[31:0] val[4],      val[4];
-logic[31:0] cmd_idx,     next_cmd_idx
+logic[31:0] val[4],      next_val[4];
+logic[31:0] cmd_idx,     next_cmd_idx;
 logic[31:0] cmd_limit,   next_cmd_limit;
 logic[31:0] timeout_cnt, next_timeout_cnt;
 
@@ -81,7 +79,7 @@ always_comb
 begin
     for(int i = 0; i < 4; i++)
     begin
-        cmd_data[i] = task2bank_cmd(bank, val);
+        cmd_data[i] = task2bank_cmd(bank[i][3:0], val[i][7:0]);
     end
 end
 
@@ -116,7 +114,7 @@ begin
         begin
             if(task_valid)
             begin
-                next_state   = VALIDATE;
+                next_state   = VALIDATE_LEN;
                 next_len     = len_bytes;
                 next_bank[0] = bank0;
                 next_bank[1] = bank1;
@@ -149,7 +147,7 @@ begin
             if(len == TASK_1_BYTES)
             begin
                 next_state     = VALIDATE_PAYLOAD;
-                next_cmd_limit = 'd1
+                next_cmd_limit = 'd1;
             end
             else if(len == TASK_2_BYTES)
             begin
@@ -186,7 +184,7 @@ begin
             begin
                 next_state = VALIDATE_PAYLOAD;
 
-                if(bank[cmd_idx] > BANK_VAL_MAX || val[cmd_idx] > BANK_VAL_MAX)
+                if(bank[cmd_idx] > BANK_ENABLE_MAX || val[cmd_idx] > BANK_VAL_MAX)
                 begin
                     next_state      = IDLE;
                     next_resp_valid = '1;
@@ -221,6 +219,7 @@ begin
             end
             else
             begin
+                next_state         = SRC;
                 next_aso_cmd_valid = '1;
                 next_aso_cmd_data  = cmd_data[cmd_idx];
 
@@ -240,7 +239,7 @@ begin
     len            <= (rst) ? '0            : next_len;
     bank           <= (rst) ? '{default:'0} : next_bank;
     val            <= (rst) ? '{default:'0} : next_val;
-    cmd_idx        <= (rst) ? '0            : next_cmd_idx
+    cmd_idx        <= (rst) ? '0            : next_cmd_idx;
     cmd_limit      <= (rst) ? '0            : next_cmd_limit;
     timeout_cnt    <= (rst) ? '0            : next_timeout_cnt;
     aso_cmd_valid  <= (rst) ? '0            : next_aso_cmd_valid;
