@@ -11,6 +11,9 @@
 extern "C" {
 #endif
 
+/**
+ * @brief Header task ID field identifiers
+ */
 enum ticd_standard_task_id
 {
     /**
