@@ -55,7 +55,7 @@ enum ticd_standard_status_code
      * completely operational state. The framework provides a gating facility
      * to reject certain task until all initialization data has been received.
      * See @c ticd_glue_application_initialized and
-     * @c ticd_glue_task_can_bypass_initialization for more information on the
+     * @c ticd_glue_task_can_bypass_ready for more information on the
      * framework's task gating capability.
      */
     TICD_STATUS_NEED_INITIALIZATION_DATA,
