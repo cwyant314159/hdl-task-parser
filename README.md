@@ -26,30 +26,42 @@ encouraged.
 
 ## Project Layout
 
-### __hdl__
+### __`hdl`__
 
-The SystemVerilog source for the task parser is located in the __hdl__
-directory at the root of the project. For ease of simulation, each standalone
-block of the task parser is given its own source file. A top level module that
-integrates all the pieces of the task parser, is located in
-__task_st_parser.sv__ (as in task stream parser).
+The SystemVerilog source for the task parser is located in the `hdl` folder at
+the root of the project. For ease of simulation, each standalone block of the
+task parser is given its own source file. A top level module that integrates
+all the pieces of the task parser, is located in `task_st_parser.sv` (as in
+task stream parser).
 
-### __sim__
+### __`sim`__
 
-Simulations for the HDL blocks are located in the __sim__ directory. Each
-module has its own simulation directory. See the section on
-___Simulation Makefiles___ for more information on how to build and run
-simulations. The __verilator_support__ folder in the simulation directory
-contains a Makefile for compiling the Verilator supporting code located in
-the Verilator install directory. The Makefile will compile the supporting code
-into a static archive and copy all necessary headers to an include folder in
-the support directory. See the
+Simulations for the HDL blocks are located in the `sim` folder. Each module has
+its own simulation folder. See the section on ___Simulation Makefiles___ for
+more information on how to build and run simulations. The `verilator_support`
+folder in `sim` contains a Makefile for compiling the Verilator supporting code
+located in the Verilator install folder. The Makefile will compile the
+supporting code into a static archive and copy all necessary headers to an
+include folder in the support folder. See the
 [verilator-ip-simulation-template](https://github.com/cwyant314159/verilator-ip-simulation-template)
 for more information.
 
+### __`sw`__
+
+A software implementation of the task parser is located in the `sw` folder. Not
+only does the software task parser implement the same tasks as the HDL variant,
+it also includes a framework for handling commands that are not suited for HDL
+processing. Some tasks may have a variable length payload with an upperbound
+that is too large to efficiently handle in hardware. Other tasks like resets
+and status reporting typically require more system level information that is
+often difficult to coordinate in hardware only implementations.
+
+More details on the software implementation and its example application can be
+found in the README of the `sw` folder.
+
 ## Simulation Makefiles
 
-Each simulation is contained in a folder under the `sim` directory. A Makefile
+Each simulation is contained in a folder under the `sim` folder. A Makefile
 that is responsible for building, verilating, and running is located at the
 root of each simulation folder. The table below summarizes the main Make
 targets of a simulation's Makefile.
