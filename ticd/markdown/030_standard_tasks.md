@@ -1,2 +1,2 @@
-Task Structure
+Standard Tasks
 ==============

@@ -29,3 +29,12 @@ Error Code
 
 Handler
 -------
+
+Glue
+----
+
+Ready Gate
+----------
+
+Initialization Data
+-------------------

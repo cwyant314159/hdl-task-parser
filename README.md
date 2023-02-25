@@ -55,6 +55,12 @@ often difficult to coordinate in hardware only implementations.
 More details on the software implementation and its example application can be
 found in the README of the `sw` folder.
 
+### __`ticd`__
+
+A simple framework (TICD) for handling task parsing is located in the `ticd`
+folder. The folder contains a `doxy.conf` file that can be used to generate
+a PDF reference manual that describes the TICD protocol and API documentation.
+
 ## Simulation Makefiles
 
 Each simulation for the HDL modules contains a Makefile that handles all the

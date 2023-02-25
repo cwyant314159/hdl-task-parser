@@ -15,11 +15,11 @@ extern "C" {
 /**
  * @brief TICD framework header structure.
  * 
- * The TICD header structure is a well formatted data structure that is used by
- * the framework to determine which tasks is called and to communicate the
- * status of the task exection. This header structure is meant to be transmitted
- * over a physical medium and must not have any compiler added padding between
- * members. The structure must be "packed".
+ * The TICD header structure is a formatted data structure that is used by
+ * the framework to determine which task handler is called and to communicate
+ * the status of the task exection. This header structure is meant to be
+ * transmitted over a physical medium and must not have any compiler added
+ * padding between members.
  */
 typedef struct ticd_header 
 {
