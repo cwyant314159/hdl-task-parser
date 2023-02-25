@@ -6,6 +6,10 @@ sim_build
 venv
 verilate_obj
 
+# doxygen related files
+ticd/output
+ticd/?*.pdf
+
 *.a
 *.d
 *.o
