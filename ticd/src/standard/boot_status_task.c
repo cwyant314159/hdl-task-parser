@@ -46,15 +46,13 @@ void ticd_standard_boot_status_task_handler(const TicdTask * const p_task, TicdT
     // If the header of the boot status task is not valid, the response
     // status is just the return value of the header validation helper. If the
     // task header is valid, the response status is determined by the
-    // application initialization state. It is either waiting for
-    // initialization tasks or in an OK status state.
+    // application initialization state. It is either not ready or in an OK
+    // status state.
     const uint32_t validate_status = validate_header(&p_task->header);
 
-    if (validate_status != TICD_STATUS_OK) {
-        ticd_std_resp_header(&p_task->header, &p_resp->header, validate_status);
-    } else if (TICD_SUCCESS == ticd_glue_application_initialized()) {
-        ticd_std_resp_header(&p_task->header, &p_resp->header, TICD_STATUS_OK);
-    } else {
-        ticd_std_resp_header(&p_task->header, &p_resp->header, TICD_STATUS_NEED_INITIALIZATION_DATA);
-    }
+    const uint32_t status = (validate_status != TICD_STATUS_OK)             ? validate_status       :
+                            (TICD_SUCCESS == ticd_glue_application_ready()) ? TICD_STATUS_OK        :
+                                                                              TICD_STATUS_NOT_READY ;
+
+    ticd_std_resp_header(&p_task->header, &p_resp->header, status);
 }

@@ -38,8 +38,8 @@ TicdErr ticd_initialize(void);
  * actual task execution as well as two optional handlers for byte-swapping the
  * payload fields of the task and response.
  * 
- * @param task_id TICD task ID
- * @param entry TICD framework look-up table entry
+ * @param[in] task_id TICD task ID
+ * @param[in] entry TICD framework look-up table entry
  * @return TICD_SUCCESS if registration succeeded. All other values indicate
  * registration failed and task processing will likely not occur.
  */

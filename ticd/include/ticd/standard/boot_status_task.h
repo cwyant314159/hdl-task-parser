@@ -22,8 +22,8 @@ extern "C" {
  * TICD_STATUS_OK - The application has received all initialization data (or
  * does not need it) and is in the running state.
  * 
- * TICD_STATUS_NEED_INITIALIZATION_DATA - The application requires more
- * initialization data before transitioning to the running state.
+ * TICD_STATUS_NOT_READY - The application is not in a ready state and some 
+ * commands might be gated.
  * 
  * @param[in] task Inbound task
  * @param[out] resp Outbound task response

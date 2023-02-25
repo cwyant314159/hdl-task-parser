@@ -52,11 +52,10 @@ enum ticd_standard_status_code
      * Some applications require initialization data before being in a
      * completely operational state. The framework provides a gating facility
      * to reject certain task until all initialization data has been received.
-     * See @c ticd_glue_application_initialized and
-     * @c ticd_glue_task_can_bypass_ready for more information on the
-     * framework's task gating capability.
+     * See @c ticd_glue_application_ready and @c ticd_glue_task_can_bypass_ready
+     * for more information on the framework's task gating capability.
      */
-    TICD_STATUS_NEED_INITIALIZATION_DATA,
+    TICD_STATUS_NOT_READY,
 
     /**
      * @brief The received task's header field is invalid

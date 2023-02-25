@@ -214,7 +214,7 @@ void ticd_loop(void)
 
         // The application is not in a ready state and the task ID is not
         // allowed to execute when the application is not ready.
-        reject_task(TICD_STATUS_NEED_INITIALIZATION_DATA);
+        reject_task(TICD_STATUS_NOT_READY);
 
     } else {
 

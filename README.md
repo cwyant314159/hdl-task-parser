@@ -57,9 +57,10 @@ found in the README of the `sw` folder.
 
 ### __`ticd`__
 
-A simple framework (TICD) for handling task parsing is located in the `ticd`
-folder. The folder contains a `doxy.conf` file that can be used to generate
-a PDF reference manual that describes the TICD protocol and API documentation.
+The Tiny ICD (TICD) framework is a simple implementation of a software based
+task parser library. The TICD framework folder contains a `doxy.conf` file that
+can be used to generate a PDF reference manual for the TICD protocol and
+framework API.
 
 ## Simulation Makefiles
 
