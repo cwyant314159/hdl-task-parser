@@ -1,8 +1,6 @@
 /**
  * @file   header.h
  * @brief  TICD framework task header structure
- * @author Cole Wyant
- * @date   2023-02-05
  */
 #ifndef TICD_HEADER_H_INCLUDE
 #define TICD_HEADER_H_INCLUDE
@@ -12,29 +10,32 @@ extern "C" {
 #endif
 
 #include <stdint.h>
+#include "ticd/compiler.h"
 
 /**
  * @brief TICD framework header structure.
  * 
- * This header structure is meant to be transmitted over a physical medium and
- * must not have any compiler added padding between members. The structure must
- * be "packed".
+ * The TICD header structure is a well formatted data structure that is used by
+ * the framework to determine which tasks is called and to communicate the
+ * status of the task exection. This header structure is meant to be transmitted
+ * over a physical medium and must not have any compiler added padding between
+ * members. The structure must be "packed".
  */
 typedef struct ticd_header 
 {
     /**
-     * @brief Length field
+     * @brief Full task length in bytes
      * 
      * The length field is the size of the entire task in bytes. This size
      * includes header porition of the task. All valid lengths will fall 
      * within the range:
-     * 
+     * <br>
      * sizeof(TicdHeader) <= len_bytes <= sizeof(TicdHeader) + maximum payload size
      */
     uint32_t len_bytes;
 
     /**
-     * @brief Sequence ID
+     * @brief Task sequence ID
      * 
      * Sequence ID's are used to trace messages as they are passed around.
      * Controllers (i.e. the the system not running this framework) will
@@ -70,15 +71,13 @@ typedef struct ticd_header
      * @brief Task ID
      * 
      * Task ID's are used by the framework to determine which handler from the
-     * task look-up table to call. 
-     * 
-     * The framework uses this field extensively, and it cannot be used for
-     * anything other than its intended purpose.
+     * task look-up table to call. The framework uses this field extensively,
+     * and it cannot be used for anything other than its intended purpose.
      */
     uint8_t  task_id;
 
     /**
-     * @brief Status
+     * @brief Task status code
      * 
      * The status field is the frameworks main way of indicating errors and
      * reporting status. When processing malformed tasks or handling standard
@@ -93,7 +92,7 @@ typedef struct ticd_header
      * consistent messaging protocol.
      */
     uint32_t status;
-} TicdHeader __attribute__((packed));
+} TicdHeader PACKED;
 
 /**
  * @brief The number of bytes in a TICD header
@@ -144,10 +143,8 @@ void ticd_hton_header(TicdHeader * const p_hdr);
  * only). A standard response header is bascially a copy of the task's header
  * with the status code set to whatever is appropriate from the task execution.
  * 
- * This function is capable of determining byte ordering.
- * 
  * @param[in] p_task_hdr Pointer to a header structure of the inbound task
- * @param[out] p_task_hdr Pointer to a header structure of the outbound response
+ * @param[out] p_resp_hdr Pointer to a header structure of the outbound response
  * @param[in] resp_status New response header status field
  */
 void ticd_std_resp_header(const TicdHeader * const p_task_hdr, TicdHeader * const p_resp_hdr, uint32_t resp_status);

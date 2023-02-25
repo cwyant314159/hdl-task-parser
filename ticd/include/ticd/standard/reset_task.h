@@ -1,8 +1,6 @@
 /**
  * @file   reset_task.h
  * @brief  Standard reset task TICD framework callbacks
- * @author Cole Wyant
- * @date   2023-02-04
  */
 #ifndef TICD_STANDARD_RESET_TASK_H_INCLUDE
 #define TICD_STANDARD_RESET_TASK_H_INCLUDE

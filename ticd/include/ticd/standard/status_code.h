@@ -1,8 +1,6 @@
 /**
  * @file   status_code.h
  * @brief  TICD framework response status codes
- * @author Cole Wyant
- * @date   2023-02-04
  */
 #ifndef TICD_STANDARD_STATUS_CODE_H_INCLUDE
 #define TICD_STANDARD_STATUS_CODE_H_INCLUDE

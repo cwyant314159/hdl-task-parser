@@ -1,8 +1,6 @@
 /**
  * @file   message.h
  * @brief  TICD framework message structure
- * @author Cole Wyant
- * @date   2023-02-05
  */
 #ifndef TICD_MESSAGE_H_INCLUDE
 #define TICD_MESSAGE_H_INCLUDE
@@ -13,6 +11,7 @@ extern "C" {
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "ticd/compiler.h"
 #include "ticd/types/error_codes.h"
 #include "ticd/types/task.h"
 
@@ -55,7 +54,7 @@ typedef struct ticd_message
      * @brief TICD task structure byte array
      */
     uint8_t task[sizeof(TicdTask)];
-} TicdMsg __attribute__((packed));
+} TicdMsg PACKED;
 
 /**
  * @brief Message meta buffer helper

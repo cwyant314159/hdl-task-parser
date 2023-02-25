@@ -1,8 +1,6 @@
 /**
- * @file   boot_status.h
+ * @file   boot_status_task.h
  * @brief  Standard boot status task TICD framework callbacks
- * @author Cole Wyant
- * @date   2023-02-04
  */
 #ifndef TICD_STANDARD_BOOT_STATUS_TASK_H_INCLUDE
 #define TICD_STANDARD_BOOT_STATUS_TASK_H_INCLUDE

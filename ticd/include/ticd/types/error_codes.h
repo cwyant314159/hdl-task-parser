@@ -1,8 +1,6 @@
 /**
  * @file   error_codes.h
  * @brief  TICD framework software error codes
- * @author Cole Wyant
- * @date   2023-02-05
  */
 #ifndef TICD_ERROR_CODES_H_INCLUDE
 #define TICD_ERROR_CODES_H_INCLUDE

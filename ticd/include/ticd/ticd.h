@@ -1,8 +1,6 @@
-/*
+/**
  * @file   ticd.h
  * @brief  The main TICD framework interface
- * @author Cole Wyant
- * @date   2023-02-05
  */
 #ifndef TICD_H_INCLUDE
 #define TICD_H_INCLUDE

@@ -1,8 +1,6 @@
 /**
  * @file   task_id.h
  * @brief  TICD framework task ID codes
- * @author Cole Wyant
- * @date   2023-02-04
  */
 #ifndef TICD_STANDARD_TASK_ID_H_INCLUDE
 #define TICD_STANDARD_TASK_ID_H_INCLUDE

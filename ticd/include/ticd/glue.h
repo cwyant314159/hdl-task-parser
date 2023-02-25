@@ -1,8 +1,6 @@
 /**
  * @file   glue.h
  * @brief  TICD framework user provided "glue" functions
- * @author Cole Wyant
- * @date   2023-02-05
  */
 #ifndef TICD_GLUE_H_INCLUDE
 #define TICD_GLUE_H_INCLUDE
@@ -118,6 +116,8 @@ TicdErr ticd_glue_application_ready(void);
  * This glue function is optional. The framework provides a weakly defined
  * implementation of this function that always signals that the task ID can NOT
  * bypass the ready gate
+ * 
+ * @param[in] task_id TICD task ID
  * 
  * @return @c TICD_SUCCESS if the task ID can bypass ready state gating. All
  * other return values indicate the task ID must respected the gating logic.

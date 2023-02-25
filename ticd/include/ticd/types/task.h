@@ -1,8 +1,6 @@
 /**
  * @file   task.h
  * @brief  TICD framework task structure
- * @author Cole Wyant
- * @date   2023-02-05
  */
 #ifndef TICD_TASK_H_INCLUDE
 #define TICD_TASK_H_INCLUDE
@@ -12,6 +10,7 @@ extern "C" {
 #endif
 
 #include <stdint.h>
+#include "ticd/compiler.h"
 #include "ticd/types/header.h"
 
 #ifndef TICD_MAX_MESSAGE_PAYLOAD_BYTES
@@ -49,7 +48,7 @@ typedef struct ticd_task
      * @brief Payload byte array
      */
     uint8_t    payload[TICD_MAX_MESSAGE_PAYLOAD_BYTES];
-} TicdTask __attribute__((packed));
+} TicdTask PACKED;
 
 #ifdef __cplusplus
 }
