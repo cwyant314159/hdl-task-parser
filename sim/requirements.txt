@@ -1,0 +1,7 @@
+cocotb
+cocotb-bus
+cocotb-coverage
+matplotlib
+numpy
+pytest
+scipy
