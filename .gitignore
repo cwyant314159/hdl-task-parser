@@ -1,9 +1,14 @@
 .vscode
+__pycache__
 bin
 obj
+sim_build
+venv
 verilate_obj
 
 *.a
 *.d
 *.o
 *.vcd
+
+results.xml

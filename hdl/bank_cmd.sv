@@ -31,7 +31,7 @@ import cmd_icd_pkg::*;
 import task_icd_pkg::*;
 
 // MODULE CONSTANTS
-localparam logic[31:0] MAX_TIMEOUT = 'd100000; // clock ticks
+localparam logic[31:0] MAX_TIMEOUT = 'd1000; // clock ticks
     
 localparam logic[31:0] CMD_WORDS = 'd2;
 localparam logic[31:0] TASK_1_BYTES = HEADER_BYTES + ('d4 * CMD_WORDS * 'd1);

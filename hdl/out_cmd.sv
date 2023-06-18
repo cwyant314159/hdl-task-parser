@@ -24,7 +24,7 @@ import cmd_icd_pkg::*;
 import task_icd_pkg::*;
 
 // MODULE CONSTANTS
-localparam logic[31:0] MAX_TIMEOUT = 'd100000; // clock ticks
+localparam logic[31:0] MAX_TIMEOUT = 'd1000; // clock ticks
     
 localparam logic[31:0] CMD_WORDS = HEADER_WORDS + 'd1;
 localparam logic[31:0] CMD_LEN   = CMD_WORDS * 'd4; // bytes
@@ -98,11 +98,12 @@ begin
         /*
          * Verify that the length is equal to this commands message length
          * (including the header), and the output strobe value is within the
-         * valid range. The lower bound is not checked since it is 0. If any
-         * check is failed, the response is set to PAYLOAD_INVALID, and the
-         * state machine jumps back to IDLE. If all checks are passed, the
-         * timeout counter is cleared and the state machine jumps to the
-         * streaming source state.
+         * valid range. The lower bound is not checked since it is 0. An
+         * invalid length issues a HEADER_INVALID. All other failed checks
+         * set the response to PAYLOAD_INVALID. Any failed check will put the
+         * state machine back to IDLE. If all checks are passed, the timeout
+         * counter is cleared and the state machine jumps to the streaming
+         * source state.
          */
         VALIDATE:
         begin
@@ -158,7 +159,7 @@ begin
 
         /*
          * This case is un-reachable. It is only provided to appease the
-         * linker. In the unfortunate case that it is reached, it simply jumps
+         * linter. In the unfortunate case that it is reached, it simply jumps
          * back to the IDLE state.
          */
         default:
