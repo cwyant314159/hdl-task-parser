@@ -37,6 +37,7 @@ extern "C" {
  */
 int ticd_glue_rx_message(TicdMsg * const msg);
 
+
 /**
  * @brief TICD framework transmit message glue function
  * 
@@ -59,6 +60,7 @@ int ticd_glue_rx_message(TicdMsg * const msg);
  */
 void ticd_glue_tx_message(const TicdMsg * const msg);
 
+
 /**
  * @brief TICD framework application reset action glue function
  * 
@@ -74,6 +76,7 @@ void ticd_glue_tx_message(const TicdMsg * const msg);
  * implementation of this function that does nothing and returns.
  */
 void ticd_glue_reset_action(void);
+
 
 /**
  * @brief TICD framework application is ready glue function
@@ -102,6 +105,7 @@ void ticd_glue_reset_action(void);
  */
 TicdErr ticd_glue_application_ready(void);
 
+
 /**
  * @brief TICD framework application task ID can bypass ready state function
  * 
@@ -123,6 +127,7 @@ TicdErr ticd_glue_application_ready(void);
  * other return values indicate the task ID must respected the gating logic.
  */
 TicdErr ticd_glue_task_can_bypass_ready(uint8_t task_id);
+
 
 #ifdef __cplusplus
 }

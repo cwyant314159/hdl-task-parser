@@ -23,30 +23,14 @@
 
 #endif
 
-/*
- * @brief Task ID handler look-up table
- */
-static TicdTaskTableEntry task_table[TICD_LOOKUP_TABLE_SIZE];
+static TicdTaskTableEntry task_table[TICD_LOOKUP_TABLE_SIZE]; // Task ID look-up table
 
-/*
- * @brief Memory for inbound task messages
- */
-static TicdMsg task_msg;
+static TicdMsg task_msg;    // inbound task message memory
+static TicdMsg resp_msg;    // outbound response message memory
 
-/*
- * @brief Memory for outbound response messages
- */
-static TicdMsg resp_msg;
+static TicdTask * const p_task = (TicdTask *)task_msg.task; // alias to inbound task buffer
+static TicdTask * const p_resp = (TicdTask *)resp_msg.task; // alias to outbound response buffer
 
-/*
- * @brief Task struct pointer to the inboud task message's task byte array
- */
-static TicdTask * const p_task = task_msg.task;
-
-/*
- * @brief Task struct pointer to the outboud response message's task byte array
- */
-static TicdTask * const p_resp = resp_msg.task;
 
 /*
  * @brief Execute the current task
@@ -56,27 +40,26 @@ static TicdTask * const p_resp = resp_msg.task;
  */
 static void execute_task(void)
 {
-    // Retrieve the task ID's entry from the table using the static global task
-    // pointer and call all necessary functions.
+    // Retrieve the task ID's entry from the table.
     const TicdTaskTableEntry * const entry = &task_table[p_task->header.task_id];
 
     // If a task payload HTON function was provided at task registration, call
-    // it now with the static global task payload pointer.
+    // it now.
     if (entry->task_hton != NULL) {
         entry->task_hton(p_task->payload);
     }
 
     // The handle has already been checked for NULL in the task ID
-    // pre-conditions. Call the handle with the static global task and response
-    // pointer.
-    entry->handler(p_task, p_resp); // uses static global objects
+    // pre-conditions.
+    entry->handler(p_task, p_resp);
 
     // If a response payload NTOH function was provided at task registration,
-    // call it now with the static global response payload pointer.
+    // call it now.
     if (entry->resp_ntoh != NULL) {
         entry->resp_ntoh(p_resp->payload);
     }
 }
+
 
 /*
  * @brief Reject the current task with a status code
@@ -91,6 +74,7 @@ static void reject_task(uint32_t status_code)
     ticd_std_resp_header(&p_task->header, &p_resp->header, status_code);
 }
 
+
 /*
  * @brief Check to see if the task ID has a valid handler
  * @param[in] id Task ID
@@ -99,12 +83,23 @@ static void reject_task(uint32_t status_code)
  */
 static TicdErr task_has_handler(uint8_t id)
 {
+    // Skip the if-statement check if the look-up table uses the full range of
+    // the ID's data type.
+#if (TICD_LOOKUP_TABLE_SIZE-1) == UINT8_MAX
+
+    return (task_table[id].handler != NULL) ? TICD_SUCCESS : TICD_FAILURE;
+
+#else
+
     if (id < TICD_LOOKUP_TABLE_SIZE && task_table[id].handler != NULL) {
         return TICD_SUCCESS;
     } else {
         return TICD_FAILURE;
     }
+
+#endif
 }
+
 
 /*
  * @brief Check to see if the task ID can bypass the application ready gate
@@ -120,6 +115,7 @@ static TicdErr task_can_bypass_ready(uint8_t id)
            (TICD_TASK_INITIALIZATION_DATA == id) ? TICD_SUCCESS :
                                                    ticd_glue_task_can_bypass_ready(id);
 }
+
 
 TicdErr ticd_initialize(void)
 {
@@ -154,20 +150,32 @@ TicdErr ticd_initialize(void)
     return TICD_SUCCESS;
 }
 
+
 TicdErr ticd_register_task(uint8_t task_id, const TicdTaskTableEntry * const entry)
 {
+    // Skip the if-statement check if the look-up table uses the full range of
+    // the ID's data type.
+#if (TICD_LOOKUP_TABLE_SIZE-1) == UINT8_MAX
+
+    task_table[task_id] = *entry;
+    return TICD_SUCCESS;
+
+#else
+
     if (task_id < TICD_LOOKUP_TABLE_SIZE) {
         task_table[task_id] = *entry;
         return TICD_SUCCESS;
     }
 
     return TICD_FAILURE;
+
+#endif
 }
+
 
 void ticd_loop(void)
 {
-
-    // Attempt to receiver a message from the user provided glue function.
+    // Attempt to receive a message from the user provided glue function.
     // Processing only occurs if at least 1 bytes is received. A value of 0
     // indicates that no message was available for processing and causes the
     // loop to exit early. Values less than 0 indicate an error condition on
@@ -183,14 +191,17 @@ void ticd_loop(void)
     // use this buffer to determine where to send the response message.
     memcpy(resp_msg.meta, task_msg.meta, TICD_META_BUF_LEN);
 
-    // Byte swap the header even though we might not have a full headers worth
+    // Byte swap the header even though we might not have a full header worth
     // of data. Since we have allocated enough space for the largest possible
     // message, it's safe to do so. See the definition of the TicdMsg struct.
-    ticd_ntoh_header(p_task);
+    ticd_ntoh_header(&p_task->header);
 
     // The following if-else if-else structure is the main decision tree of the
     // TICD library.
-    if(bytes_received != p_task->header.len_bytes) {
+
+    // By this point, the bytes_received value is for sure positive. This type
+    // cast should be OK.
+    if((uint32_t)bytes_received != p_task->header.len_bytes) {
 
         // The bytes received by the user provided glue function does not match
         // the length bytes in the message header. There is no way to know who
@@ -227,18 +238,6 @@ void ticd_loop(void)
     // transmission error handling is left to the user application. TICD does
     // not care about errors or status from the transmission medium.
     ticd_glue_tx_message(&resp_msg);
-}
-
-/**
- * @brief Returns success if the task has a valid handler in the task table.
- */
-static TicdErr task_has_handler(uint8_t id)
-{
-    if (id < TICD_LOOKUP_TABLE_SIZE && task_table[id].handler != NULL) {
-        return TICD_SUCCESS;
-    } else {
-        return TICD_FAILURE;
-    }
 }
 
 

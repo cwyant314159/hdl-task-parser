@@ -24,6 +24,7 @@ static inline uint32_t bswap16(uint16_t x)
 #endif
 }
 
+
 /*
  * @brief 32-bit byte swap
  *
@@ -44,9 +45,7 @@ static inline uint32_t bswap32(uint32_t x)
 #endif
 }
 
-/*
- * @brief Definition of header network to host byte swap
- */
+
 void ticd_ntoh_header(TicdHeader * const p_hdr)
 {
     // A byte swap is a byte swap. The framwework doesn't implement two different
@@ -55,9 +54,7 @@ void ticd_ntoh_header(TicdHeader * const p_hdr)
     ticd_hton_header(p_hdr);
 }
 
-/*
- * @brief Definition of header host to network byte swap
- */
+
 void ticd_hton_header(TicdHeader * const p_hdr)
 {
     p_hdr->len_bytes    = bswap32(p_hdr->len_bytes);
@@ -67,9 +64,7 @@ void ticd_hton_header(TicdHeader * const p_hdr)
     p_hdr->status       = bswap32(p_hdr->status);
 }
 
-/*
- * @brief Definition of standard response header population
- */
+
 void ticd_std_resp_header(const TicdHeader * const p_task_hdr, TicdHeader * const p_resp_hdr, uint32_t resp_status)
 {
     p_resp_hdr->len_bytes   = TICD_HEADER_BYTES;

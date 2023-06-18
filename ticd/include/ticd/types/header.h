@@ -21,7 +21,7 @@ extern "C" {
  * transmitted over a physical medium and must not have any compiler added
  * padding between members.
  */
-typedef struct ticd_header 
+typedef struct PACKED
 {
     /**
      * @brief Full task length in bytes
@@ -92,7 +92,7 @@ typedef struct ticd_header
      * consistent messaging protocol.
      */
     uint32_t status;
-} TicdHeader PACKED;
+} TicdHeader;
 
 /**
  * @brief The number of bytes in a TICD header

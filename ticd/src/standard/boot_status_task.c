@@ -38,9 +38,7 @@ static uint32_t validate_header(const TicdHeader * const hdr)
     }
 }
 
-/*
- * @brief Definition of the standard boot status task handler
- */
+
 void ticd_standard_boot_status_task_handler(const TicdTask * const p_task, TicdTask * const p_resp)
 {
     // If the header of the boot status task is not valid, the response

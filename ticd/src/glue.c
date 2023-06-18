@@ -6,6 +6,7 @@
  */
 #include "ticd/glue.h"
 
+
 /*
  * @brief Default reset action
  *
@@ -16,6 +17,7 @@ void __attribute__((weak)) ticd_glue_reset_action(void)
 {
     return;
 }
+
 
 /*
  * @brief Default application ready check
@@ -30,6 +32,7 @@ TicdErr __attribute__((weak)) ticd_glue_application_ready(void)
     return TICD_SUCCESS;
 }
 
+
 /*
  * @brief Default application task ID bypass check
  *
@@ -40,5 +43,6 @@ TicdErr __attribute__((weak)) ticd_glue_application_ready(void)
  */
 TicdErr __attribute__((weak)) ticd_glue_task_can_bypass_ready(uint8_t task_id)
 {
+    (void)task_id; // suppress unused warning
     return TICD_FAILURE;
 }

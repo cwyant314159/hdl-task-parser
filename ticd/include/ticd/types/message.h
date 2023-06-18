@@ -43,7 +43,7 @@ extern "C" {
  * must not have any compiler added padding between members. The structure must
  * be "packed".
  */
-typedef struct ticd_message
+typedef struct PACKED
 {
     /**
      * @brief Message meta information byte array
@@ -54,7 +54,7 @@ typedef struct ticd_message
      * @brief TICD task structure byte array
      */
     uint8_t task[sizeof(TicdTask)];
-} TicdMsg PACKED;
+} TicdMsg;
 
 /**
  * @brief Message meta buffer helper

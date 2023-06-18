@@ -37,7 +37,7 @@ extern "C" {
  * must not have any compiler added padding between members. The structure must
  * be "packed".
  */
-typedef struct ticd_task
+typedef struct PACKED
 {
     /**
      * @brief TICD header structure
@@ -48,7 +48,7 @@ typedef struct ticd_task
      * @brief Payload byte array
      */
     uint8_t    payload[TICD_MAX_MESSAGE_PAYLOAD_BYTES];
-} TicdTask PACKED;
+} TicdTask;
 
 #ifdef __cplusplus
 }

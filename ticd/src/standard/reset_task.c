@@ -38,9 +38,7 @@ static uint32_t validate_header(const TicdHeader * const hdr)
     }
 }
 
-/*
- * @brief Definition of the standard reset task handler
- */
+
 void ticd_standard_reset_task_handler(const TicdTask * const p_task, TicdTask * const p_resp)
 {
     // A reset command has no payload. The header validation is the reponse

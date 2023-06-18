@@ -12,6 +12,7 @@ extern "C" {
 #include <stdlib.h>
 #include "ticd/types/task.h"
 
+
 /**
  * @brief Standard boot status task handler
  * 
@@ -29,6 +30,7 @@ extern "C" {
  * @param[out] resp Outbound task response
  */
 void ticd_standard_boot_status_task_handler(const TicdTask * const task, TicdTask * const resp);
+
 
 #ifdef __cplusplus
 }

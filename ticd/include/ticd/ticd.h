@@ -12,6 +12,7 @@ extern "C" {
 #include "ticd/types/error_codes.h"
 #include "ticd/types/task_table_entry.h"
 
+
 /**
  * @brief TICD framework initialize
  * 
@@ -30,6 +31,7 @@ extern "C" {
  */
 TicdErr ticd_initialize(void);
 
+
 /**
  * @brief Register task handlers with TICD framework
  * 
@@ -45,6 +47,7 @@ TicdErr ticd_initialize(void);
  */
 TicdErr ticd_register_task(uint8_t task_id, const TicdTaskTableEntry * const entry);
 
+
 /**
  * @brief TICD framework main loop
  * 
@@ -53,6 +56,7 @@ TicdErr ticd_register_task(uint8_t task_id, const TicdTaskTableEntry * const ent
  * @c ticd_initialize.
  */
 void ticd_loop(void);
+
 
 #ifdef __cplusplus
 }
