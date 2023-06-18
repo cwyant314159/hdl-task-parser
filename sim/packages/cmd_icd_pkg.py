@@ -21,7 +21,7 @@ class CommandId(Enum):
     CMD_ID_BANK = 0b0000
     CMD_ID_OUT  = 0b0001
 
-def __bits2mask(msb, lsb, normalize = False):
+def __bits2mask(msb:int, lsb:int, normalize:bool = False) -> int:
     """
     Compute a bit mask given its MSB and LSB. If normalize is true the mask
     will be shifted such that the LSB of the mask is bit 0.
@@ -41,21 +41,21 @@ def __bits2mask(msb, lsb, normalize = False):
     mask = mask_msb - mask_lsb
 
     if normalize:
-        mask >> lsb
+        mask >>= lsb
 
     return mask
 
 
-def task2out_cmd(out):
+def task2out_cmd(out:int) -> int:
     out_mask = __bits2mask(OUT_CMD_MSB, OUT_CMD_LSB, normalize=True)
-    
+
     i = CommandId.CMD_ID_OUT.value << CMD_ID_LSB
     o = (out & out_mask )          << OUT_CMD_LSB
-    
+
     return i | o
 
 
-def task2bank_cmd(bank, value):
+def task2bank_cmd(bank:int, value:int) -> int:
     bank_mask  = __bits2mask(BANK_CMD_EN_MSB, BANK_CMD_EN_LSB, normalize=True)
     value_mask = __bits2mask(BANK_CMD_VAL_MSB, BANK_CMD_VAL_LSB, normalize=True)
 
