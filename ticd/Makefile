@@ -14,6 +14,15 @@ LIB_DIR  := lib
 LIB_NAME := ticd
 LIB      := lib$(LIB_NAME).a
 
+# Variables related to doxygen and its output.
+DOXY_CONF := doxy.conf
+DOXY_DIR  := doxy_output
+
+# The output name and location of the TICD
+# documentation.
+DOC_DIR := doc
+DOC_NAME := ticd_api.pdf
+
 # Include directories and compiler
 # include (-I) argument creation. For
 # ease of addition, put each new
@@ -121,12 +130,23 @@ $(OBJ_DIR)/%.cpp.o: %.cpp
 	@$(MKDIR) $$(dirname $@)
 	$(CXX) $(CXXFLAGS) -o $@ $<
 
+# This target uses doxygen to create the
+# API documentation from annotated source
+# files.
+.PHONY: doc
+doc:
+	@doxygen $(DOXY_CONF)
+	@$(MAKE) -C $(DOXY_DIR)/latex
+	@mkdir -p $(DOC_DIR)
+	@cp -f $(DOXY_DIR)/latex/refman.pdf $(DOC_DIR)/$(DOC_NAME)
+
 # This target removes all build files
 # and the final binary.
 .PHONY: clean
 clean:
 	$(RM) $(OBJ_DIR)
 	$(RM) $(LIB_DIR)
+	$(RM) $(DOXY_DIR)
 
 # This target is mostly used for
 # debugging. It pretty prints the

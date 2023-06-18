@@ -7,8 +7,8 @@ venv
 verilate_obj
 
 # doxygen related files
-ticd/output
-ticd/?*.pdf
+ticd/doxy_output
+ticd/doc
 
 *.a
 *.d
