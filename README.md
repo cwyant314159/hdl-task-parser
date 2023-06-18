@@ -13,12 +13,15 @@ described in the projects interface control document (icd).
 1. Make
 2. GCC
 3. Verilator
+4. Python3
+5. GtkWave
 
-All HDL simulations are C++ based simulations that are built with the GCC
-toolchain and Make. The SystemVerilog to C++ "conversion" is done using
-[Verilator](https://www.veripool.org/verilator). All Makefiles and scripts
-expect Verilator to be on the system path. Any sufficiently recent version of
-Verilator should be good enough to run the simulations in this project.
+All HDL simulations are implemented using `cocotb`. A `requirements.txt` file
+located in the `sim` folder contains all the necessary Python dependencies to
+run the simulations. Each HDL module has a simulation under the `sim` directory
+as well as an associated Makefile to support tasks such as linting, handling
+VCD files for GtkWave, and running the simulation. See the section on
+___Simulation Makefiles___ for more information on using the Makefile.
 
 All simulations were developed and tested on MacOS and Linux. No attempt was
 made to support Windows. Pull-requests to add Windows support are welcomed and
@@ -31,20 +34,13 @@ encouraged.
 The SystemVerilog source for the task parser is located in the `hdl` folder at
 the root of the project. For ease of simulation, each standalone block of the
 task parser is given its own source file. A top level module that integrates
-all the pieces of the task parser, is located in `task_st_parser.sv` (as in
-task stream parser).
+all the pieces of the task parser, is located in `task_parser.sv`.
 
 ### __`sim`__
 
-Simulations for the HDL blocks are located in the `sim` folder. Each module has
-its own simulation folder. See the section on ___Simulation Makefiles___ for
-more information on how to build and run simulations. The `verilator_support`
-folder in `sim` contains a Makefile for compiling the Verilator supporting code
-located in the Verilator install folder. The Makefile will compile the
-supporting code into a static archive and copy all necessary headers to an
-include folder in the support folder. See the
-[verilator-ip-simulation-template](https://github.com/cwyant314159/verilator-ip-simulation-template)
-for more information.
+A simulations for each HDL block is located in the `sim` folder. See the
+section on ___Simulation Makefiles___ for more information on how to build and
+run simulations.
 
 ### __`sw`__
 
@@ -61,75 +57,37 @@ found in the README of the `sw` folder.
 
 ## Simulation Makefiles
 
-Each simulation is contained in a folder under the `sim` folder. A Makefile
-that is responsible for building, verilating, and running is located at the
-root of each simulation folder. The table below summarizes the main Make
-targets of a simulation's Makefile.
+Each simulation for the HDL modules contains a Makefile that handles all the
+specifics of linting and simulating that HDL block. The table below summarizes
+the main Make targets of a simulation's Makefile.
 
-| Target   | Purpose                                              |
-| -------- | ---------------------------------------------------- |
-| lint     | Run the Verilator linter on the SystemVerilog source |
-| verilate | Verilates HDL into C++                               |
-| all      | Builds simulation. Verilates if necessary            |
-| run      | Runs compiled simulation. Builds if necessary        |
+| Target   | Purpose                                                  |
+| -------- | -------------------------------------------------------- |
+| sim      | Run the simulation                                       |
+| wave     | Run the simulation and open the dump.vcd file in GtkWave |
+| lint     | Run the Verilator linter on the SystemVerilog source     |
+| all      | Maps to the sim Make target                              |
 
-When running a simulation, a start banner with the name of the simulation is
-printed followed by the names of one or more test cases. Once the simulation is
-finished, an end banner with the simulation is printed with test and failure
-statistics
+Simulations are implemented using `cocotb`. A `requirements.txt` file is
+provided contains all the necessary dependencies to run the simulations.
 
-```bash
-$ make run
-=== OUTPUT COMMAND SIMULATION BEGIN ===
-Output Test [0 - 100]
-Invalid Length Test
-Execution Error Test
-=== OUTPUT COMMAND SIMULATION END ===
-Tests: 103
-Fails: 0
-```
-
-If a test fails during a simulation, an error message is printed with the
-expected value and actual value as well as the simulation inputs that caused
-the failure.
-
-```bash
-$ make run
-=== OUTPUT COMMAND SIMULATION BEGIN ===
-Output Test [0 - 100]
--------------------------------------------------
-Response failed
-out = 32 len = 20 latency = 0
-Expected: 0
-Actual  : 2
--------------------------------------------------
--------------------------------------------------
-Command failed
-out = 32 len = 20 latency = 0
-Expected: 268435488
-Actual  : 4294967295
--------------------------------------------------
-Invalid Length Test
-Execution Error Test
-=== OUTPUT COMMAND SIMULATION END ===
-Tests: 103
-Fails: 2
-```
+Linting is performed by `verilator`. The Makefile assumes `verilator` is
+available on the system PATH.
 
 ## Running Software Implementation
 
-<!-- TODO -->
+**TODO**
 
 <!-- Move the following sections to another markdown file -->
 <!-- theory.md -->
 ## Task Parser "Theory"
 
-<!-- TODO -->
+**TODO**
 
 ## Software Implementation
 
-<!-- TODO -->
+**TODO**
 
 ## Hardware Implementation
 
-<!-- TODO -->
+**TODO**

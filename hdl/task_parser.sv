@@ -66,7 +66,7 @@ assign resp_src_cycle = aso_resp_ready & aso_resp_valid;
 assign cmd_src_cycle  = aso_cmd_ready  & aso_cmd_valid;
 
 /*
- * These assignments are bascially overlays onto the message received on the
+ * These assignments are bascially overlays onto the received message from the
  * streaming interface. This means that these values are only valid after
  * completely sinking the message (i.e. validity is only ensured in the
  * validation states of the state machine).
@@ -142,7 +142,7 @@ begin
             next_msg[STATUS_IDX] = TASK_VALID;
 
             /*
-             * Validate the message field. The first check ensures that the
+             * Validate the header fields. The first check ensures that the
              * length field matches the number of words received. This is
              * achieved by shifting the length field to the left by 2 (and
              * back filling with 0's). 
@@ -189,10 +189,6 @@ begin
         TASK_HANDLE:
         begin
             // TODO wait for resp 
-        end
-
-        OUT_TASK:
-        begin
         end
 
         SRC_CMD:
