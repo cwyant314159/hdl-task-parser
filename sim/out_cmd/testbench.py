@@ -1,16 +1,8 @@
 import cocotb
-import os
-import sys
+import cmd_icd_pkg
+import task_icd_pkg
 
 from sim_dut import SimDut
-
-# Import files from the packages directory under the sim folder of the
-# project.
-pkgs = os.path.join(os.path.curdir, "..", "packages")
-sys.path.insert(0, os.path.abspath(pkgs))
-
-import task_icd_pkg
-import cmd_icd_pkg
 
 
 def expected_response(length, out):
@@ -31,7 +23,6 @@ def expected_commands(length, out):
     return [cmd_icd_pkg.task2out_cmd(out)]
 
 
-
 @cocotb.test()
 async def invalid_length_test(dut):
     tb_dut = SimDut(dut)
@@ -43,6 +34,7 @@ async def invalid_length_test(dut):
     resp, cmds = await tb_dut.act(length, out)
     assert resp == expected_response(length, out)
     assert cmds == expected_commands(length, out)
+
 
 @cocotb.test()
 async def output_test(dut):
@@ -56,6 +48,7 @@ async def output_test(dut):
         assert resp == expected_response(length, out)
         assert cmds == expected_commands(length, out)
 
+
 @cocotb.test()
 async def timout_test(dut):
     tb_dut = SimDut(dut)
@@ -64,8 +57,7 @@ async def timout_test(dut):
     length = SimDut.VALID_LEN
     out    = SimDut.OUT_MIN
 
-    expected_resp = task_icd_pkg.Status.EXE_ERROR.value
-
     resp, cmds = await tb_dut.act(length, out, force_timeout=True)
-    assert resp == expected_resp
+    assert resp == task_icd_pkg.Status.EXE_ERROR.value
     assert cmds == []
+    

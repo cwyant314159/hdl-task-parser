@@ -1,17 +1,8 @@
 import cocotb
-import os
-import sys
+import task_icd_pkg
 
 from cocotb.clock import Clock
 from cocotb.triggers import RisingEdge
-
-# Import files from the packages directory under the sim folder of the
-# project.
-cwd  = os.path.abspath(os.path.curdir)
-pkgs = os.path.join(cwd, "..", "packages")
-sys.path.insert(0, os.path.abspath(pkgs))
-
-import task_icd_pkg
 
 class SimDut():
 

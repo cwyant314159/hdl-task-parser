@@ -1,30 +1,15 @@
 import cocotb
-import os
-import sys
+import task_icd_pkg
 
 from cocotb.clock import Clock
 from cocotb.triggers import RisingEdge
 from typing import List
 from typing import Tuple
 
-# Import files from the packages directory under the sim folder of the
-# project.
-cwd  = os.path.abspath(os.path.curdir)
-pkgs = os.path.join(cwd, "..", "packages")
-sys.path.insert(0, os.path.abspath(pkgs))
-
-import task_icd_pkg
 
 class SimDut():
 
     __PAYLOAD_WORDS_PER_TASK: int = 2
-
-    VALID_TASK_LEN: List[int] = [
-        task_icd_pkg.HEADER_BYTES + (4 * __PAYLOAD_WORDS_PER_TASK * 1),
-        task_icd_pkg.HEADER_BYTES + (4 * __PAYLOAD_WORDS_PER_TASK * 2),
-        task_icd_pkg.HEADER_BYTES + (4 * __PAYLOAD_WORDS_PER_TASK * 3),
-        task_icd_pkg.HEADER_BYTES + (4 * __PAYLOAD_WORDS_PER_TASK * 4),
-    ]
 
     # Bank enable field limits
     BANK_EN_MIN: int = 0

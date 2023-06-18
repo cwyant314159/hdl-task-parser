@@ -41,4 +41,8 @@ wave: dump.vcd
 
 dump.vcd: sim
 
+# Add the packages directory to the PYTHONPATH variable before running
+# simulation.
+sim: export PYTHONPATH := ../packages:$$PYTHONPATH
+
 include $(shell cocotb-config --makefiles)/Makefile.sim

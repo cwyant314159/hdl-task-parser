@@ -1,16 +1,8 @@
 import cocotb
-import os
-import sys
+import cmd_icd_pkg
+import task_icd_pkg
 
 from sim_dut import SimDut
-
-# Import files from the packages directory under the sim folder of the
-# project.
-pkgs = os.path.join(os.path.curdir, "..", "packages")
-sys.path.insert(0, os.path.abspath(pkgs))
-
-import task_icd_pkg
-import cmd_icd_pkg
 
 
 def expected_response(task_list):
