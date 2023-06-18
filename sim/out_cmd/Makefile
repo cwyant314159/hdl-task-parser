@@ -1,6 +1,9 @@
 HDL_DIR := ../../hdl
 
-SIM ?= icarus
+SIM ?= verilator
+
+# Extra arguments to pass to verilator
+EXTRA_ARGS += --trace --trace-structs
 
 # RTL language for the top level module.
 #

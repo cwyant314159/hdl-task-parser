@@ -1,3 +1,0 @@
-# Do not save the include directory. It is created by copying files from the
-# verilator install.
-include

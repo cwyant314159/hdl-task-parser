@@ -180,11 +180,4 @@ begin
     resp           <= (rst) ? TASK_VALID : next_resp;
 end
 
-`ifdef COCOTB_SIM
-initial begin
-    $dumpfile ("dump.vcd");
-    $dumpvars (0, out_cmd);
-end
-`endif
-
 endmodule
