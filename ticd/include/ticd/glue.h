@@ -33,7 +33,8 @@ extern "C" {
  * defined implementation of this function.
  * 
  * @param[in,out] msg A pointer to a pre-allocated/reserved message structure
- * @return The number of bytes received or a negative number indicating errors
+ * @return The number of bytes received or a negative number indicating an
+ * application specific error
  */
 int ticd_glue_rx_message(TicdMsg * const msg);
 
@@ -100,8 +101,8 @@ void ticd_glue_reset_action(void);
  * implementation of this function that always signals the application is 
  * ready.
  * 
- * @return @c TICD_SUCCESS if the application is ready for tasks. All other
- * values will gate task acceptance.
+ * @return @ref TICD_SUCCESS application can handle tasks
+ * @return @ref TICD_FAILURE application is not in a state to handle tasks
  */
 TicdErr ticd_glue_application_ready(void);
 
@@ -123,8 +124,8 @@ TicdErr ticd_glue_application_ready(void);
  * 
  * @param[in] task_id TICD task ID
  * 
- * @return @c TICD_SUCCESS if the task ID can bypass ready state gating. All
- * other return values indicate the task ID must respected the gating logic.
+ * @return @ref TICD_SUCCESS \p task_id can bypass ready state gating
+ * @return @ref TICD_FAILURE \p task_id must obey the task ID gating logic
  */
 TicdErr ticd_glue_task_can_bypass_ready(uint8_t task_id);
 

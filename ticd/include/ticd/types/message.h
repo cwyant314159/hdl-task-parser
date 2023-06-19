@@ -57,24 +57,24 @@ typedef struct PACKED
 } TicdMsg;
 
 /**
- * @brief Message meta buffer helper
+ * @brief Copy a byte array into the meta field of a message
  * 
  * @param[in,out] msg Pointer to TICD message structure
  * @param[in] meta_buf Pointer to the meta information for the message
  * @param[in] meta_buf_len Length of the meta information in bytes
- * @return TICD_SUCCESS if the populate was successful; all other values
- * indicate failure
+ * @return @ref TICD_SUCCESS successful copy
+ * @return @ref TICD_FAILURE \p meta_buf is too long for the message
  */
 TicdErr ticd_message_populate_source(TicdMsg * const msg, const uint8_t * const meta_buf, size_t meta_buf_len);
 
 /**
- * @brief Message task buffer helper
+ * @brief Copy a byte array into the task field of a message
  * 
  * @param[in,out] msg Pointer to TICD message structure
  * @param[in] task_buf Pointer to the task data
  * @param[in] task_buf_len Length of the task data in bytes
- * @return TICD_SUCCESS if the populate was successful; all other values
- * indicate failure
+ * @return @ref TICD_SUCCESS successful copy
+ * @return @ref TICD_FAILURE \p task_buf is too long for the message
  */
 TicdErr ticd_message_populate_task(TicdMsg * const msg, const uint8_t * const task_buf, size_t task_buf_len);
 

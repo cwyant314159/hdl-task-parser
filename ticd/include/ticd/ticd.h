@@ -26,8 +26,9 @@ extern "C" {
  * applications have the ability to overwrite entries in the look-up table as
  * needed.
  * 
- * @return TICD_SUCCESS if initialization succeeded. All other values indicate
- * initialization failed and task processing will likely not occur.
+ * @return @ref TICD_SUCCESS initialization succeeded
+ * @return @ref TICD_FAILURE either @ref TICD_TASK_RESET or
+ * @ref TICD_TASK_BOOT_STATUS failed task registration
  */
 TicdErr ticd_initialize(void);
 
@@ -42,8 +43,8 @@ TicdErr ticd_initialize(void);
  * 
  * @param[in] task_id TICD task ID
  * @param[in] entry TICD framework look-up table entry
- * @return TICD_SUCCESS if registration succeeded. All other values indicate
- * registration failed and task processing will likely not occur.
+ * @return @ref TICD_SUCCESS successful task registration
+ * @return @ref TICD_FAILURE \p task_id is an invalid task id
  */
 TicdErr ticd_register_task(uint8_t task_id, const TicdTaskTableEntry * const entry);
 
