@@ -1,8 +1,8 @@
-User Defined Task
-=================
+User Defined Task {#user_defined_task}
+======================================
 
-Defining the Constants and Payloads
------------------------------------
+Defining the Constants and Payloads {#defining_the_constants_and_payloads}
+--------------------------------------------------------------------------
 
 <br>
 - - -
@@ -20,14 +20,14 @@ int main(void)
 <br>
 - - -
 
-Creating the Handler
----------------------
+Creating the Handler {#creating_the_handler}
+--------------------------------------------
 
-### NTOH Handler
+### NTOH Handler {#ntoh_handler}
+ 
+### HTON Handler {#hton_handler}
 
-### HTON Handler
+### Task Handler {#task_handler}
 
-### Task Handler
-
-Registering the Handler
------------------------
+Registering the Handler {#registering_the_handler}
+--------------------------------------------------

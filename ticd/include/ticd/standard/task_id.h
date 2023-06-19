@@ -24,8 +24,8 @@ enum ticd_standard_task_id
      * 
      * Upon a reset, an application can be in either a running state or an idle
      * state waiting for initialization data. This task allows external systems
-     * to probe the application for its current state. This task is not gated
-     * by the additional initialization data required state.
+     * to probe the application for its current state. This task is able to
+     * bypass the task ready gate.
      */
     TICD_TASK_BOOT_STATUS,
     
@@ -35,8 +35,8 @@ enum ticd_standard_task_id
      * To remain generic, the actual reset functionality is implemented in the
      * user supplied glue function @c ticd_glue_reset_action. The TICD
      * framework is only responsible for task validation and response
-     * generation for this task. This task is not gated by the additional
-     * initialization data required state.
+     * generation for this task. This task is able to bypass the task ready
+     * gate.
      */
     TICD_TASK_RESET,
     
@@ -45,8 +45,8 @@ enum ticd_standard_task_id
      * 
      * Some applications may require additional data from an external source
      * before processing tasks. This task is provided to allow the additional
-     * data to reach the application. This task is not gated by the additional
-     * initialization data required state.
+     * data to reach the application.  This task is able to bypass the task
+     * ready gate.
      */
     TICD_TASK_INITIALIZATION_DATA,
     
