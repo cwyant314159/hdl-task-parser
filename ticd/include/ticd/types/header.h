@@ -45,7 +45,7 @@ typedef struct PACKED
      * to the outbound reponses header.
      * 
      * There is no requirement that the sequence ID be a monotonically
-     * increasing message counter. Application writers are free to use this
+     * increasing message counter. System developers are free to use this
      * field as needed. 
      */
     uint16_t seq_id;

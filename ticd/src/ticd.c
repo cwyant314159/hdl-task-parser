@@ -43,21 +43,25 @@ static void execute_task(void)
     // Retrieve the task ID's entry from the table.
     const TicdTaskTableEntry * const entry = &task_table[p_task->header.task_id];
 
+#ifndef SKIP_BYTE_SWAP
     // If a task payload HTON function was provided at task registration, call
     // it now.
     if (entry->task_hton != NULL) {
         entry->task_hton(p_task->payload);
     }
+#endif
 
     // The handle has already been checked for NULL in the task ID
     // pre-conditions.
     entry->handler(p_task, p_resp);
 
+#ifndef SKIP_BYTE_SWAP
     // If a response payload NTOH function was provided at task registration,
     // call it now.
     if (entry->resp_ntoh != NULL) {
         entry->resp_ntoh(p_resp->payload);
     }
+#endif
 }
 
 
@@ -191,10 +195,12 @@ void ticd_loop(void)
     // use this buffer to determine where to send the response message.
     memcpy(resp_msg.meta, task_msg.meta, TICD_META_BUF_LEN);
 
+#ifndef SKIP_BYTE_SWAP
     // Byte swap the header even though we might not have a full header worth
     // of data. Since we have allocated enough space for the largest possible
     // message, it's safe to do so. See the definition of the TicdMsg struct.
     ticd_ntoh_header(&p_task->header);
+#endif
 
     // The following if-else if-else structure is the main decision tree of the
     // TICD library.
@@ -233,6 +239,12 @@ void ticd_loop(void)
         // table, and the application is in a ready state.
         execute_task();
     }
+
+#ifndef SKIP_BYTE_SWAP
+    // Byte swap the response message's header. It is the responsibility of the
+    // task handler to byte swap the payload (if there is one).
+    ticd_hton_header(&p_task->header);
+#endif
 
     // Transmit the response message using the user provided glue function. All
     // transmission error handling is left to the user application. TICD does
