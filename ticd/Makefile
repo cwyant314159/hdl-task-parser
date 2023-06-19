@@ -1,7 +1,9 @@
 # GCC tool prefix (if there is one)
+#
 TOOL_PREFIX ?=
 
-# The build tools used in the targets.
+# The build tools
+#
 CC    := $(TOOL_PREFIX)gcc -c -xc
 CXX   := $(TOOL_PREFIX)gcc -c -xc++
 LD    := $(TOOL_PREFIX)gcc
@@ -9,88 +11,70 @@ AR    := $(TOOL_PREFIX)ar
 RM    := rm -rf
 MKDIR := mkdir -p
 
-# The output library directory and name.
+# Compiled library directory, name, and
+# full lib*.a name
+#
 LIB_DIR  := lib
 LIB_NAME := ticd
 LIB      := lib$(LIB_NAME).a
 
-# Variables related to doxygen and its output.
+# Doxygen configuration and output directory
+#
 DOXY_CONF := doxy.conf
 DOXY_DIR  := doxy_output
 
 # The output name and location of the TICD
 # documentation.
-DOC_DIR := doc
+DOC_DIR  := doc
 DOC_NAME := ticd_api.pdf
 
 # Include directories and compiler
-# include (-I) argument creation. For
-# ease of addition, put each new
-# include directory on its own line
-# with the += assignment.
-INC_DIRS :=
-INC_DIRS += include
-
+# include flags
+#
+INC_DIRS  := include
 INC_FLAGS := $(foreach dir, $(INC_DIRS), $(addprefix -I, $(dir)))
 
-# Source directory list and source file
-# list generation. For ease of addition,
-# put each new source directory on its
-# own line. The SRC_FILE variable is
-# created by recursively searching
-# these directories for *.c and *.cpp
-# files.
-SRC_DIRS :=
-SRC_DIRS += src
-
-SRC_FILES :=
-SRC_FILES += $(foreach dir, $(SRC_DIRS), $(shell find $(dir) -type f -name '*.cpp'))
+# Source directories and source file
+# list
+# 
+SRC_DIRS  := src
+SRC_FILES := $(foreach dir, $(SRC_DIRS), $(shell find $(dir) -type f -name '*.cpp'))
 SRC_FILES += $(foreach dir, $(SRC_DIRS), $(shell find $(dir) -type f -name '*.c'))
 
-# The object directory and object file
-# list generation. These shouldn't
-# really change. Object files under the
-# $(OBJ_DIR) will mirror the path of
-# source files under the $(SRC_DIRS).
-OBJ_DIR  := obj
+# Object directory and file names
+#
+OBJ_DIR := obj
+OBJS    := $(SRC_FILES:=.o)
+OBJS    := $(foreach obj, $(OBJS), $(addprefix $(OBJ_DIR)/, $(obj)))
 
-OBJS := $(SRC_FILES:=.o)
-OBJS := $(foreach obj, $(OBJS), $(addprefix $(OBJ_DIR)/, $(obj)))
-
-# Warning flags are applied to both
-# CFLAGS and CXXFLAGS through the
-# COMFLAGS variable. If a certain
-# warning only applies to one type of
-# compiler, it must be placed in the
-# compiler specific flags variable
-WARN_FLAGS :=
-WARN_FLAGS += -Wall
+# Compiler warning flags
+#
+WARN_FLAGS := -Wall
 WARN_FLAGS += -Wextra
 WARN_FLAGS += -Wshadow
 
-# Common compiler flags are passed to
-# both the CC and CXX compilers.
+# C and C++ shared compiler flags
+#
 COMMON_FLAGS := $(WARN_FLAGS)
-COMMON_FLAGS += -ffunction-sections
 COMMON_FLAGS += -O2
+COMMON_FLAGS += -ffunction-sections
 COMMON_FLAGS += -fdata-sections
 COMMON_FLAGS += -MMD
 COMMON_FLAGS += -MP
 COMMON_FLAGS += $(INC_FLAGS)
 
-# CFLAGS are C compiler specific flags.
-# These flags are NOT passed to CXX
+# C compiler flags
+#
 CFLAGS := $(COMMON_FLAGS)
 CFLAGS += -std=c99
 
-# CXXFLAGS are C++ compiler specific
-# flags. These flags are not passed to
-# CC.
+# C++ compiler flags
+#
 CXXFLAGS := $(COMMON_FLAGS)
 CXXFLAGS += -std=c++11
 
-# Flags passed to the archiver after
-# compilation.
+# Archiver flags
+#
 ARFLAGS := -crs
 
 # This variable is used by the dump
@@ -102,55 +86,53 @@ ARFLAGS := -crs
 # until this variable is used.
 DUMP_FMT := tr " " "\n" | sed 's/^\(\w\|-\)/    \1/; /^$$/d'
 
-# This is the default target (commonly
-# called all). It in turn triggers the
-# final binary linker target.
+# Build static archive
 #
 all: $(LIB_DIR)/$(LIB)
 
-# This is the archive target that uses
-# all of the compiled OBJS files and
-# ARFLAGS to create the final lib.
+# Archive object files
 #
 $(LIB_DIR)/$(LIB): $(OBJS)
 	@$(MKDIR) $$(dirname $@)
 	$(AR) $(ARFLAGS) $@ $^
 
-# This is the target that compiles all
-# C files into object files under the
-# $(OBJ_DIR).
+# Compile C files
+#
 $(OBJ_DIR)/%.c.o: %.c
 	@$(MKDIR) $$(dirname $@)
 	$(CC) $(CFLAGS) -o $@ $<
 
-# This is the target that compiles all
-# C++ files into object files under the
-# $(OBJ_DIR).
+# Compile C++ files
+#
 $(OBJ_DIR)/%.cpp.o: %.cpp
 	@$(MKDIR) $$(dirname $@)
 	$(CXX) $(CXXFLAGS) -o $@ $<
 
-# This target uses doxygen to create the
-# API documentation from annotated source
-# files.
-.PHONY: doc
-doc:
+# Error check doxygen comments
+#
+.PHONY: doc-check
+doc-check:
 	@doxygen $(DOXY_CONF)
+
+# Generate API document
+#
+.PHONY: doc
+doc: doc-check
 	@$(MAKE) -C $(DOXY_DIR)/latex
 	@mkdir -p $(DOC_DIR)
 	@cp -f $(DOXY_DIR)/latex/refman.pdf $(DOC_DIR)/$(DOC_NAME)
 
-# This target removes all build files
-# and the final binary.
+# Remove build files and doxygen output
+#
 .PHONY: clean
 clean:
 	$(RM) $(OBJ_DIR)
 	$(RM) $(LIB_DIR)
 	$(RM) $(DOXY_DIR)
+	$(RM) $(DOC_DIR)/$(DOC_NAME)
 
-# This target is mostly used for
-# debugging. It pretty prints the
-# contents of Make variables.
+# Pretty print the build configuration
+#
 .PHONY: dump
 dump:
 	@echo "CC    : $(CC)"
@@ -182,8 +164,7 @@ dump:
 	@echo "ARFLAGS"
 	@echo "$$(echo "$(ARFLAGS)" | $(DUMP_FMT))"
 
-# Not quite sure how they work but .d
-# (a.k.a dep files) allow rebuilds to
-# happen if header files changes.
+# Include dependency files
+#
 DEPS := $(shell find $(OBJDIR) -name '*.d')
 include $(DEPS)
