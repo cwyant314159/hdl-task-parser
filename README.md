@@ -55,6 +55,13 @@ often difficult to coordinate in hardware only implementations.
 More details on the software implementation and its example application can be
 found in the README of the `sw` folder.
 
+### __`ticd`__
+
+The Tiny ICD (TICD) framework is a simple implementation of a software based
+task parser library. The TICD framework folder contains a `doxy.conf` file that
+can be used to generate a PDF reference manual for the TICD protocol and
+framework API.
+
 ## Simulation Makefiles
 
 Each simulation for the HDL modules contains a Makefile that handles all the
