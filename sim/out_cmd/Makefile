@@ -11,9 +11,9 @@ EXTRA_ARGS += --trace --trace-structs
 TOPLEVEL_LANG ?= verilog
 
 # List of .v and .sv files
-VERILOG_SOURCES := $(HDL_DIR)/task_icd_pkg.sv
-VERILOG_SOURCES += $(HDL_DIR)/cmd_icd_pkg.sv
-VERILOG_SOURCES += $(HDL_DIR)/out_cmd.sv
+VERILOG_SOURCES := $(HDL_DIR)/sv/task_icd_pkg.sv
+VERILOG_SOURCES += $(HDL_DIR)/sv/cmd_icd_pkg.sv
+VERILOG_SOURCES += $(HDL_DIR)/sv/out_cmd.sv
 
 # Top level module for simulation
 TOPLEVEL = out_cmd
