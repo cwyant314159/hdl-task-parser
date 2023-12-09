@@ -21,7 +21,7 @@ parameter int unsigned PAYLOAD_0_IDX = 'd4;  // application payload
 /*lint_on*/
 
 // Message task id's
-typedef enum logic[7:0] {
+typedef enum logic[31:0] {
     TASK_ID_BANK = 'd100,
     TASK_ID_OUT  = 'd101
 } task_id_t;
