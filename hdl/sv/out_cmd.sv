@@ -1,3 +1,8 @@
+/*
+ * Output command task handler
+ *
+ * TODO long form documentation
+ */
 module out_cmd (
 
     // clocking interface

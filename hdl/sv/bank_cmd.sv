@@ -1,3 +1,8 @@
+/*
+ * Band command task handler 
+ *
+ * TODO long form documentation
+ */
 module bank_cmd (
 
     // clocking interface
