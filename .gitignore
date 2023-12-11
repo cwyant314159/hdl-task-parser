@@ -9,6 +9,7 @@ verilate_obj
 *.a
 *.d
 *.o
+*.odg#
 *.vcd
 
 results.xml

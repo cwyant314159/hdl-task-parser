@@ -21,9 +21,6 @@ TOPLEVEL = out_cmd
 # Name of the python test bench
 MODULE = testbench
 
-# GTK Wave display file
-GTWK := $(TOPLEVEL)_dump.gtkw
-
 # Verilator linting flags
 LINT_FLAGS := -Wpedantic
 LINT_FLAGS += -Wwarn-lint
@@ -37,7 +34,7 @@ lint:
 
 .PHONY:wave
 wave: dump.vcd
-	gtkwave $(GTWK)
+	gtkwave $<
 
 dump.vcd: sim
 
