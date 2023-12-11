@@ -72,7 +72,7 @@ logic task_snk_cycle;
 logic resp_src_cycle;
 
 logic[31:0] len_bytes;
-logic[31:0]  task_id;
+logic[31:0] task_id;
 
 state_t curr_state, next_state;
 
@@ -111,7 +111,7 @@ assign resp_src_cycle = aso_resp_ready & aso_resp_valid;
  * These assignments are bascially overlays onto the received message from the
  * streaming interface. This means that these values are only valid after
  * completely sinking the message (i.e. validity is only ensured once the
- * validation states of the state machine are reached).
+ * validation state of the state machine are reached).
  */
 assign len_bytes = msg[LEN_IDX];
 assign task_id   = msg[TASK_ID_IDX];
@@ -318,14 +318,17 @@ end
 
 always_ff @ (posedge clk or posedge rst)
 begin
-    curr_state     <= (rst) ? IDLE           : next_state;
-    word_count     <= (rst) ? '0             : next_word_count;
-    msg            <= (rst) ? '{default: '0} : next_msg;
-    asi_task_ready <= (rst) ? '0             : next_asi_task_ready;
-    aso_resp_valid <= (rst) ? '0             : next_aso_resp_valid;
-    aso_resp_sop   <= (rst) ? '0             : next_aso_resp_sop;
-    aso_resp_eop   <= (rst) ? '0             : next_aso_resp_eop;
-    aso_resp_data  <= (rst) ? '0             : next_aso_resp_data;
+    /* control */
+    curr_state     <= (rst) ? IDLE : next_state;
+    asi_task_ready <= (rst) ? '0   : next_asi_task_ready;
+    aso_resp_valid <= (rst) ? '0   : next_aso_resp_valid;
+    aso_resp_sop   <= (rst) ? '0   : next_aso_resp_sop;
+    aso_resp_eop   <= (rst) ? '0   : next_aso_resp_eop;
+    
+    /* data */
+    word_count    <= next_word_count;
+    msg           <= next_msg;
+    aso_resp_data <= next_aso_resp_data;
 end
 
 /* 
