@@ -42,12 +42,46 @@ make wave                        # re-run the sim and open the wave file
 
 ## Basic Theory
 
-The task parser in this project is a stripped down version of parser I used to 
-work on at one of my previous jobs. Many of the reliability features have been 
-removed, but the basic premise that structured packets of data are converted 
-into a single command word used by internal logic is the same.
+At a previous job, I spent a lot of time writing embedded applications that
+were responsible for acting and responding to tasks over Ethernet connections.
+The implementation usually involved defining structs that represented task 
+messages that would be processed into whatever necessary data structure needed 
+by the task's action. Most actions would need to be carried out by custom IP 
+written internally. To make life easier on the IP designers, their data inputs 
+computed from task messages would be a single command word of some predefined 
+width. The width would be determined ahead of the finalized design and be large
+enough to handle all possible tasks for the application. For the purposes of 
+this project, command words can be assumed to be 32-bits wide.
 
 ![basic-task-flow](./icd/img/basic-task-flow.png)
+
+For 99.99% of the tasks, a software implementation was fast enough to meet 
+application requirements. The latency caused by the Ethernet LAN stack and 
+other background processing on the processor core running the task parser were
+negligble compared to the custom IP (think relay switching speeds). However, in 
+the 0.01% of tasks where latency was required to be as minimal as possible, a 
+faster/parallel HDL solution was needed. As stated earlier tasks were generally
+sent over Ethernet, and the FPGA vendor's Ethernet MAC IP just happened to use 
+streaming interfaces as the main mechanism for moving packets. This allowed 
+shim logic to be placed between the Ethernet MAC and the processor running the 
+software task parser. The shim was a "large" logic block that was responsible 
+for scanning packets from the Ethernet MAC and determining if the packet was 
+one of the application tasks. If the packet was an application task and if that
+particular task type was flagged for hardware processing, the shim would 
+redirect that packet to a logic block that could decode and execute that task:
+the HDL task parser.
+
+![hdl-task-flow](./icd/img/hdl-task-flow.png)
+
+
+
+
+
+
+
+
+
+
 
 __TODO__
 
