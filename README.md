@@ -31,15 +31,23 @@ a Python virtual environment and run a simulation.
 
 ```bash
 cd sim 
-python3 -m venv venv        # creates a folder named venv 
-source venv/bin/activate    # activate the environment
-cd ./some-module            # each module has their own folder
-make lint                   # run lint on the HDL 
-make                        # run the simulation 
-make wave                   # re-run the simulation and display the wave file
+python3 -m venv venv             # creates a folder named venv 
+source venv/bin/activate         # activate the environment
+pip3 install -r requirements.txt # install Python dependencies    
+cd ./some-module                 # each module has their own folder
+make lint                        # run lint on the HDL 
+make                             # run the sim 
+make wave                        # re-run the sim and open the wave file
 ```
 
 ## Basic Theory
+
+The task parser in this project is a stripped down version of parser I used to 
+work on at one of my previous jobs. Many of the reliability features have been 
+removed, but the basic premise that structured packets of data are converted 
+into a single command word used by internal logic is the same.
+
+![basic-task-flow](./icd/img/basic-task-flow.png)
 
 __TODO__
 
