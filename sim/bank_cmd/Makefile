@@ -15,21 +15,19 @@ VERILOG_FILES := $(HDL_DIR)/sv/task_icd_pkg.sv
 VERILOG_FILES += $(HDL_DIR)/sv/cmd_icd_pkg.sv
 VERILOG_FILES += $(HDL_DIR)/sv/bank_cmd.sv
 
-# We have to do some monkey business to use this 
-# same Makefile for both the VHDL and Verilog 
-# versions of the code. To run the simulation with 
-# the VHDL source code, the environment variable 
-# VHDL must be set to 1 (VHDL=1). If this variable 
-# is not set, the Verilog source code will be used 
-# during the simulation.
-ifeq ($(VHDL),1)
+# Default to using verilator, but allow for the
+# possibility of other simulators
+SIM ?= verilator
+
+# The simulator choice will determine the top level
+# language, simulator args, and executable args. 
+ifeq ($(SIM), ghdl)
 WAVE_FILE     := dump.ghw
 SIM           := ghdl
 TOPLEVEL_LANG := vhdl
 SIM_ARGS      := --wave=$(WAVE_FILE)
 EXTRA_ARGS    += --std=08
 VHDL_SOURCES  := $(VHDL_FILES)
-WAVE_FILE     := 
 else
 WAVE_FILE       := dump.vcd
 SIM             := verilator
@@ -56,7 +54,7 @@ lint:
 
 $(WAVE_FILE): sim
 
-.PHONY:wave
+.PHONY: wave
 wave: $(WAVE_FILE)
 	gtkwave $<
 
