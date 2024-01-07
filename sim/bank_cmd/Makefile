@@ -2,7 +2,7 @@
 TOPLEVEL := bank_cmd
 
 # Name of the cocotb testbench python script
-MODULE   := testbench
+MODULE := testbench
 
 # Both the Verilog and VHDL source code for
 # this module.
@@ -12,7 +12,6 @@ VHDL_FILES := $(HDL_DIR)/vhdl/task_icd_pkg.vhd
 VHDL_FILES += $(HDL_DIR)/vhdl/bank_cmd.vhd
 
 VERILOG_FILES := $(HDL_DIR)/sv/task_icd_pkg.sv
-VERILOG_FILES += $(HDL_DIR)/sv/cmd_icd_pkg.sv
 VERILOG_FILES += $(HDL_DIR)/sv/bank_cmd.sv
 
 # Default to using verilator, but allow for the
@@ -30,7 +29,6 @@ EXTRA_ARGS    += --std=08
 VHDL_SOURCES  := $(VHDL_FILES)
 else
 WAVE_FILE       := dump.vcd
-SIM             := verilator
 TOPLEVEL_LANG   := verilog
 EXTRA_ARGS      += --trace --trace-structs
 VERILOG_SOURCES := $(VERILOG_FILES)
