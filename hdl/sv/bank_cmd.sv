@@ -90,7 +90,7 @@ begin
      *
      * NOTE:
      * The next_state variable is not assigned a default. This is
-     * intentional. The next_state variable should alwasy be actively set to
+     * intentional. The next_state variable should always be actively set to
      * a certain state.
      */
     next_len           = len;
@@ -197,7 +197,7 @@ begin
 
         /*
          * Stream the output command built from the incoming task. If
-         * MAX_TIMOUT clock cycles pass before the command is streamed out, it
+         * MAX_TIMEOUT clock cycles pass before the command is streamed out, it
          * is assumed that the bus is locked up and the response is set to
          * EXE_ERROR. 
          */
@@ -235,17 +235,18 @@ end
 
 always_ff @ (posedge clk or posedge rst)
 begin
-    curr_state     <= (rst) ? IDLE          : next_state;
-    len            <= (rst) ? '0            : next_len;
-    bank           <= (rst) ? '{default:'0} : next_bank;
-    val            <= (rst) ? '{default:'0} : next_val;
-    cmd_idx        <= (rst) ? '0            : next_cmd_idx;
-    cmd_limit      <= (rst) ? '0            : next_cmd_limit;
-    timeout_cnt    <= (rst) ? '0            : next_timeout_cnt;
-    aso_cmd_valid  <= (rst) ? '0            : next_aso_cmd_valid;
-    aso_cmd_data   <= (rst) ? '0            : next_aso_cmd_data;
-    resp_valid     <= (rst) ? '0            : next_resp_valid;
-    resp           <= (rst) ? TASK_VALID    : next_resp;
+    curr_state    <= (rst) ? IDLE : next_state;
+    aso_cmd_valid <= (rst) ? '0   : next_aso_cmd_valid;
+    resp_valid    <= (rst) ? '0   : next_resp_valid;
+    
+    len            <= next_len;
+    bank           <= next_bank;
+    val            <= next_val;
+    cmd_idx        <= next_cmd_idx;
+    cmd_limit      <= next_cmd_limit;
+    timeout_cnt    <= next_timeout_cnt;
+    aso_cmd_data   <= next_aso_cmd_data;
+    resp           <= next_resp;
 end
 
 endmodule
