@@ -27,10 +27,11 @@ module bank_cmd (
 );
 
 // IMPORTS
-import cmd_icd_pkg::*;
 import task_icd_pkg::*;
 
 // MODULE CONSTANTS
+localparam logic[3:0]  BANK_CMD_ID = 4'b0000;
+
 localparam logic[31:0] MAX_TIMEOUT = 'd1000; // clock ticks
     
 localparam logic[31:0] CMD_WORDS = 'd2;
@@ -40,7 +41,6 @@ localparam logic[31:0] TASK_3_BYTES = HEADER_BYTES + ('d4 * CMD_WORDS * 'd3);
 localparam logic[31:0] TASK_4_BYTES = HEADER_BYTES + ('d4 * CMD_WORDS * 'd4);
 
 localparam logic[31:0] BANK_ENABLE_MAX = 'd15;
-
 localparam logic[31:0] BANK_VAL_MAX = 'd255;
 
 // DATA TYPES
@@ -79,7 +79,11 @@ always_comb
 begin
     for(int i = 0; i < 4; i++)
     begin
-        cmd_data[i] = task2bank_cmd(bank[i][3:0], val[i][7:0]);
+        cmd_data[i][31:28] = BANK_CMD_ID;
+        cmd_data[i][27:16] = '0;
+        cmd_data[i][15:8]  = val[i][7:0];
+        cmd_data[i][7:4]   = '0;
+        cmd_data[i][3:0]   = bank[i][3:0];
     end
 end
 
@@ -90,7 +94,7 @@ begin
      *
      * NOTE:
      * The next_state variable is not assigned a default. This is
-     * intentional. The next_state variable should alwasy be actively set to
+     * intentional. The next_state variable should always be actively set to
      * a certain state.
      */
     next_len           = len;
@@ -197,7 +201,7 @@ begin
 
         /*
          * Stream the output command built from the incoming task. If
-         * MAX_TIMOUT clock cycles pass before the command is streamed out, it
+         * MAX_TIMEOUT clock cycles pass before the command is streamed out, it
          * is assumed that the bus is locked up and the response is set to
          * EXE_ERROR. 
          */
@@ -235,17 +239,18 @@ end
 
 always_ff @ (posedge clk or posedge rst)
 begin
-    curr_state     <= (rst) ? IDLE          : next_state;
-    len            <= (rst) ? '0            : next_len;
-    bank           <= (rst) ? '{default:'0} : next_bank;
-    val            <= (rst) ? '{default:'0} : next_val;
-    cmd_idx        <= (rst) ? '0            : next_cmd_idx;
-    cmd_limit      <= (rst) ? '0            : next_cmd_limit;
-    timeout_cnt    <= (rst) ? '0            : next_timeout_cnt;
-    aso_cmd_valid  <= (rst) ? '0            : next_aso_cmd_valid;
-    aso_cmd_data   <= (rst) ? '0            : next_aso_cmd_data;
-    resp_valid     <= (rst) ? '0            : next_resp_valid;
-    resp           <= (rst) ? TASK_VALID    : next_resp;
+    curr_state    <= (rst) ? IDLE : next_state;
+    aso_cmd_valid <= (rst) ? '0   : next_aso_cmd_valid;
+    resp_valid    <= (rst) ? '0   : next_resp_valid;
+    
+    len          <= next_len;
+    bank         <= next_bank;
+    val          <= next_val;
+    cmd_idx      <= next_cmd_idx;
+    cmd_limit    <= next_cmd_limit;
+    timeout_cnt  <= next_timeout_cnt;
+    aso_cmd_data <= next_aso_cmd_data;
+    resp         <= next_resp;
 end
 
 endmodule

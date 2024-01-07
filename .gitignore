@@ -7,7 +7,9 @@ venv
 verilate_obj
 
 *.a
+*.cf
 *.d
+*.ghw
 *.o
 *.odg#
 *.vcd

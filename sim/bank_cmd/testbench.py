@@ -108,7 +108,7 @@ async def bank_test3(dut):
 
 
 @cocotb.test()
-async def bank_test3(dut):
+async def bank_test4(dut):
     tb_dut = SimDut(dut)
     await tb_dut.reset()
 
