@@ -23,7 +23,7 @@ ENTITY bank_cmd IS
         val2       : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
         bank3      : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
         val3       : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-       
+
         -- response
         resp_valid : OUT STD_LOGIC;
         resp       : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
@@ -38,16 +38,20 @@ END ENTITY;
 ARCHITECTURE arch OF bank_cmd IS
 
     -- Array type used to hold data for individual task commands
-    TYPE WordArray IS ARRAY (0 TO 3) OF STD_LOGIC_VECTOR(31 DOWNTO 0);
+    TYPE WordArray IS ARRAY (0 TO 3) OF UNSIGNED(31 DOWNTO 0);
 
+    CONSTANT BANK_CMD_ID   : UNSIGNED(3 DOWNTO 0) := "0000";
+    
     CONSTANT MAX_TIMEOUT   : POSITIVE := 1000; -- clock ticks
+    
     CONSTANT WORDS_PER_CMD : POSITIVE := 2;
-    CONSTANT TASK_1_BYTES  : UNSIGNED(31 DOWNTO 0) := TO_UNSIGNED(WORDS_PER_CMD * 1, len_bytes'LENGTH);
-    CONSTANT TASK_2_BYTES  : UNSIGNED(31 DOWNTO 0) := TO_UNSIGNED(WORDS_PER_CMD * 2, len_bytes'LENGTH); 
-    CONSTANT TASK_3_BYTES  : UNSIGNED(31 DOWNTO 0) := TO_UNSIGNED(WORDS_PER_CMD * 3, len_bytes'LENGTH);
-    CONSTANT TASK_4_BYTES  : UNSIGNED(31 DOWNTO 0) := TO_UNSIGNED(WORDS_PER_CMD * 4, len_bytes'LENGTH); 
-    CONSTANT BANK_EN_MAX   : STD_LOGIC_VECTOR(31 DOWNTO 0) := STD_LOGIC_VECTOR(TO_UNSIGNED(15,  bank0'LENGTH));
-    CONSTANT BANK_VAL_MAX  : STD_LOGIC_VECTOR(31 DOWNTO 0) := STD_LOGIC_VECTOR(TO_UNSIGNED(255, val0'LENGTH));
+    CONSTANT TASK_1_BYTES  : UNSIGNED(31 DOWNTO 0) := TO_UNSIGNED(HEADER_BYTES + (4 * WORDS_PER_CMD * 1), len_bytes'LENGTH);
+    CONSTANT TASK_2_BYTES  : UNSIGNED(31 DOWNTO 0) := TO_UNSIGNED(HEADER_BYTES + (4 * WORDS_PER_CMD * 2), len_bytes'LENGTH);
+    CONSTANT TASK_3_BYTES  : UNSIGNED(31 DOWNTO 0) := TO_UNSIGNED(HEADER_BYTES + (4 * WORDS_PER_CMD * 3), len_bytes'LENGTH);
+    CONSTANT TASK_4_BYTES  : UNSIGNED(31 DOWNTO 0) := TO_UNSIGNED(HEADER_BYTES + (4 * WORDS_PER_CMD * 4), len_bytes'LENGTH);
+    
+    CONSTANT BANK_EN_MAX   : UNSIGNED(31 DOWNTO 0) := TO_UNSIGNED(15,  bank0'LENGTH);
+    CONSTANT BANK_VAL_MAX  : UNSIGNED(31 DOWNTO 0) := TO_UNSIGNED(255, val0'LENGTH);
 
     TYPE State IS (IDLE, VALIDATE_LEN, VALIDATE_PAYLOAD, SRC);
     SIGNAL curr_state, next_state : State;
@@ -67,18 +71,18 @@ ARCHITECTURE arch OF bank_cmd IS
     SIGNAL cmd_data : WordArray;
 
 BEGIN
-   
+
      -- Form the output command from the incoming task data. We don't bother
-     -- creating a register for this data bus since most of it is constant 
-     -- data. The only non-constant data is already registered. This bus does 
-     -- not need to be held at 0 when not in use since it has a valid signal 
+     -- creating a register for this data bus since most of it is constant
+     -- data. The only non-constant data is already registered. This bus does
+     -- not need to be held at 0 when not in use since it has a valid signal
      -- associated with it.
     cmd_builder: FOR i in WordArray'LOW to WordArray'HIGH GENERATE
-        -- TODO build the real command
-        cmd_data(i)(31 DOWNTO 24) <= (OTHERS => '1');
-        cmd_data(i)(23 DOWNTO 16) <= (OTHERS => '0');
-        cmd_data(i)(15 DOWNTO  8) <= (OTHERS => '1');
-        cmd_data(i)(7 DOWNTO   0) <= (OTHERS => '0');
+        cmd_data(i)(31 DOWNTO 28) <= BANK_CMD_ID;
+        cmd_data(i)(27 DOWNTO 16) <= (OTHERS => '0');
+        cmd_data(i)(15 DOWNTO  8) <= val(i)(7 DOWNTO 0);
+        cmd_data(i)(7  DOWNTO  4) <= (OTHERS => '0');
+        cmd_data(i)(3  DOWNTO  0) <= bank(i)(3 DOWNTO 0);
     END GENERATE;
 
     state_machine: PROCESS (ALL)
@@ -87,7 +91,7 @@ BEGIN
         --
         -- NOTE:
         -- The next_state variable is not assigned a default This is
-        -- intentional. The next_state variable should always be actively set 
+        -- intentional. The next_state variable should always be actively set
         -- to a certain state.
         next_len           <= len;
         next_bank          <= bank;
@@ -101,40 +105,40 @@ BEGIN
         next_resp          <= resp;
 
         CASE curr_state IS
-            
-            -- Wait for the valid task strobe. Once a strobe is detected 
-            -- register the length and out_strobe inputs for payload 
+
+            -- Wait for the valid task strobe. Once a strobe is detected
+            -- register the length and out_strobe inputs for payload
             -- validation.
             WHEN IDLE =>
                 IF task_valid = '1' THEN
                     next_state   <= VALIDATE_LEN;
                     next_len     <= UNSIGNED(len_bytes);
-                    next_bank(0) <= bank0; 
-                    next_bank(1) <= bank1; 
-                    next_bank(2) <= bank2; 
-                    next_bank(3) <= bank3; 
-                    next_val(0)  <= val0;
-                    next_val(1)  <= val1;
-                    next_val(2)  <= val2;
-                    next_val(3)  <= val3;
+                    next_bank(0) <= UNSIGNED(bank0);
+                    next_bank(1) <= UNSIGNED(bank1);
+                    next_bank(2) <= UNSIGNED(bank2);
+                    next_bank(3) <= UNSIGNED(bank3);
+                    next_val(0)  <= UNSIGNED(val0);
+                    next_val(1)  <= UNSIGNED(val1);
+                    next_val(2)  <= UNSIGNED(val2);
+                    next_val(3)  <= UNSIGNED(val3);
                 ELSE
                     next_state <= IDLE;
                 END IF;
-            
+
              -- Verify that the length is equal to this commands message length
-             -- (including the header), and the output strobe value is within 
-             -- the valid range. The lower bound is not checked since it is 0. 
-             -- If any check is failed, the response is set to PAYLOAD_INVALID, 
-             -- and the state machine jumps back to IDLE. If all checks are 
-             -- passed, the timeout counter is cleared and the state machine 
+             -- (including the header), and the output strobe value is within
+             -- the valid range. The lower bound is not checked since it is 0.
+             -- If any check is failed, the response is set to PAYLOAD_INVALID,
+             -- and the state machine jumps back to IDLE. If all checks are
+             -- passed, the timeout counter is cleared and the state machine
              -- jumps to the streaming source state.
             WHEN VALIDATE_LEN =>
                 next_cmd_idx <= 0;
 
-                IF len = TASK_1_BYTES THEN 
+                IF len = TASK_1_BYTES THEN
                     next_state     <= VALIDATE_PAYLOAD;
                     next_cmd_limit <= 1;
-                ELSIF len = TASK_2_BYTES THEN 
+                ELSIF len = TASK_2_BYTES THEN
                     next_state     <= VALIDATE_PAYLOAD;
                     next_cmd_limit <= 2;
                 ELSIF len = TASK_3_BYTES THEN
@@ -143,13 +147,13 @@ BEGIN
                 ELSIF len = TASK_4_BYTES THEN
                     next_state     <= VALIDATE_PAYLOAD;
                     next_cmd_limit <= 4;
-                ELSE 
+                ELSE
                     next_state      <= IDLE;
                     next_resp_valid <= '1';
                     next_resp       <= RESP_HEADER_INVALID;
                 END IF;
-            
-            WHEN VALIDATE_PAYLOAD => 
+
+            WHEN VALIDATE_PAYLOAD =>
                 IF cmd_idx = cmd_limit THEN
                     next_state       <= SRC;
                     next_cmd_idx     <= 0;
@@ -157,7 +161,7 @@ BEGIN
                 ELSE
                     next_state <= VALIDATE_PAYLOAD;
 
-                    IF bank(cmd_idx) > BANK_EN_MAX OR val(cmd_idx) > BANK_VAL_MAX THEN 
+                    IF bank(cmd_idx) > BANK_EN_MAX OR val(cmd_idx) > BANK_VAL_MAX THEN
                         next_state      <= IDLE;
                         next_resp_valid <= '1';
                         next_resp       <= RESP_PAYLOAD_INVALID;
@@ -167,26 +171,26 @@ BEGIN
                 END IF;
 
              -- Stream the output command built from the incoming task. If
-             -- MAX_TIMEOUT clock cycles pass before the command is streamed 
-             -- out, it is assumed that the bus is locked up and the response 
-             -- is set to EXE_ERROR. 
+             -- MAX_TIMEOUT clock cycles pass before the command is streamed
+             -- out, it is assumed that the bus is locked up and the response
+             -- is set to EXE_ERROR.
             WHEN SRC =>
                 next_timeout_cnt <= timeout_cnt + 1;
 
                 IF cmd_idx = cmd_limit THEN
                     next_state      <= IDLE;
                     next_resp_valid <= '1';
-                    next_resp       <= RESP_TASK_VALID; -- TODO response code
+                    next_resp       <= RESP_TASK_VALID;
                 ELSIF MAX_TIMEOUT = timeout_cnt THEN
                     next_state      <= IDLE;
                     next_resp_valid <= '1';
-                    next_resp       <= RESP_EXE_ERROR; -- TODO response code
+                    next_resp       <= RESP_EXE_ERROR;
                 ELSE
                     next_state         <= SRC;
                     next_aso_cmd_valid <= '1';
-                    next_aso_cmd_data  <= cmd_data(cmd_idx);
+                    next_aso_cmd_data  <= STD_LOGIC_VECTOR(cmd_data(cmd_idx));
 
-                    IF aso_cmd_valid = '1' AND aso_cmd_ready = '1' THEN 
+                    IF aso_cmd_valid = '1' AND aso_cmd_ready = '1' THEN
                         next_timeout_cnt <= 0;
                         next_cmd_idx     <= cmd_idx + 1;
                     END IF;
