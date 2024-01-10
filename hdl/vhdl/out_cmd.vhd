@@ -6,7 +6,7 @@ USE ieee.numeric_std.all;
 LIBRARY work;
 USE work.task_icd_pkg.all;
 -------------------------------------------------------------------------------
-ENTITY bank_cmd IS
+ENTITY out_cmd IS
     PORT(
         -- clocking interface
         clk : IN STD_LOGIC;
@@ -28,7 +28,7 @@ ENTITY bank_cmd IS
     );
 END ENTITY;
 -------------------------------------------------------------------------------
-ARCHITECTURE arch OF bank_cmd IS
+ARCHITECTURE arch OF out_cmd IS
 
     CONSTANT OUT_CMD_ID   : STD_LOGIC_VECTOR(3 DOWNTO 0) := "0001";
     
@@ -59,7 +59,7 @@ BEGIN
      -- associated with it.
     aso_cmd_data(31 DOWNTO 28) <= OUT_CMD_ID;
     aso_cmd_Data(27 DOWNTO  5) <= (OTHERS => '0');
-    aso_cmd_data(4  DOWNTO  0) <= STD_LOGIC_VECTOR(out_stb);
+    aso_cmd_data(4  DOWNTO  0) <= STD_LOGIC_VECTOR(out_stb(4 DOWNTO 0));
 
     state_machine: PROCESS (ALL)
     BEGIN
