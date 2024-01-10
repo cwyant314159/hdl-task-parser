@@ -20,10 +20,11 @@ module out_cmd (
 );
 
 // IMPORTS
-import cmd_icd_pkg::*;
 import task_icd_pkg::*;
 
 // MODULE CONSTANTS
+localparam logic[3:0]  OUT_CMD_ID = 4'b0001;
+
 localparam logic[31:0] MAX_TIMEOUT = 'd1000; // clock ticks
     
 localparam logic[31:0] CMD_WORDS = HEADER_WORDS + 'd1;
@@ -56,7 +57,9 @@ logic[31:0] timeout_cnt, next_timeout_cnt;
  * be held at 0 when not in use since it has a valid signal associated with
  * it.
  */
-assign aso_cmd_data = cmd_icd_pkg::task2out_cmd(out[4:0]);
+assign aso_cmd_data[31:28] = OUT_CMD_ID;
+assign aso_cmd_data[27:5]  = '0;
+assign aso_cmd_data[4:0]   = out[4:0];
 
 always_comb
 begin
@@ -65,7 +68,7 @@ begin
      *
      * NOTE:
      * The next_state variable is not assigned a default. This is
-     * intentional. The next_state variable should alwasy be actively set to
+     * intentional. The next_state variable should always be actively set to
      * a certain state.
      */
     next_len           = len;
@@ -141,14 +144,12 @@ begin
                 next_state         = IDLE;
                 next_resp_valid    = '1;
                 next_resp          = TASK_VALID;
-                next_aso_cmd_valid = '0;
             end
             else if(MAX_TIMEOUT == timeout_cnt)
             begin
                 next_state         = IDLE;
                 next_resp_valid    = '1;
                 next_resp          = EXE_ERROR;
-                next_aso_cmd_valid = '0;
             end
             else
             begin
@@ -172,12 +173,13 @@ end
 always_ff @ (posedge clk or posedge rst)
 begin
     curr_state     <= (rst) ? IDLE       : next_state;
-    len            <= (rst) ? '0         : next_len;
-    out            <= (rst) ? '0         : next_out;
-    timeout_cnt    <= (rst) ? '0         : next_timeout_cnt;
     aso_cmd_valid  <= (rst) ? '0         : next_aso_cmd_valid;
     resp_valid     <= (rst) ? '0         : next_resp_valid;
-    resp           <= (rst) ? TASK_VALID : next_resp;
+    
+    len            <= next_len;
+    out            <= next_out;
+    timeout_cnt    <= next_timeout_cnt;
+    resp           <= next_resp;
 end
 
 endmodule

@@ -12,7 +12,6 @@ VHDL_FILES := $(HDL_DIR)/vhdl/task_icd_pkg.vhd
 VHDL_FILES += $(HDL_DIR)/vhdl/out_cmd.vhd
 
 VERILOG_FILES := $(HDL_DIR)/sv/task_icd_pkg.sv
-VERILOG_FILES += $(HDL_DIR)/sv/cmd_icd_pkg.sv
 VERILOG_FILES += $(HDL_DIR)/sv/out_cmd.sv
 
 # Default to using verilator, but allow for the
